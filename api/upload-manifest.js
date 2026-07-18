@@ -10,7 +10,8 @@
 
 const { ethers } = require('ethers');
 const https = require('https');
-const { canonicalizeManifest, validateManifest } = require('../shared/manifest-utils');
+const { canonicalize } = require('json-canonicalize');
+const { validateManifest } = require('../shared/manifest-utils');
 
 const MAX_MANIFEST_SIZE = 1024 * 100; // 100 KB limit
 const GATEWAY_URL = 'https://ipfs.io';

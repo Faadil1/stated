@@ -1,11 +1,20 @@
 {
   "functions": {
     "api/upload-manifest.js": {
-      "runtime": "node18.x",
+      "runtime": "nodejs24.x",
       "memory": 512
     }
   },
-  "env": {
-    "PINATA_JWT": "@pinata_jwt"
-  }
+  "buildCommand": "npm install && npm ci --prefix frontend",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ]
 }
