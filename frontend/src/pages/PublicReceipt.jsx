@@ -1,50 +1,119 @@
 import React, { useState, useEffect } from 'react';
 import { getRecord } from '../utils/contract';
-import { hashManifest } from '../utils/manifest';
+import { hashManifest, fetchManifest } from '../utils/manifest';
 import '../styles/PublicReceipt.css';
+
+const IPFS_GATEWAY = 'https://ipfs.io';
 
 export default function PublicReceipt({ recordId, declaration, evidenceManifest, onNavigate }) {
   const [record, setRecord] = useState(null);
-  const [integrity, setIntegrity] = useState(null);
+  const [fetchedDeclaration, setFetchedDeclaration] = useState(null);
+  const [fetchedEvidence, setFetchedEvidence] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [declarationStatus, setDeclarationStatus] = useState('LOADING');
+  const [evidenceStatus, setEvidenceStatus] = useState('LOADING');
+  const [integrityStatus, setIntegrityStatus] = useState('UNKNOWN');
 
   useEffect(() => {
-    loadRecord();
+    loadReceipt();
   }, [recordId]);
 
-  const loadRecord = async () => {
+  const loadReceipt = async () => {
     try {
+      setLoading(true);
+      setError(null);
+
       if (!recordId && recordId !== 0) {
         throw new Error('No record ID provided');
       }
 
+      // Fetch record from blockchain
       const rec = await getRecord(recordId);
       setRecord(rec);
 
-      // Verify integrity if we have evidence
-      if (evidenceManifest) {
-        const computedHash = hashManifest(evidenceManifest);
-        setIntegrity({
-          stored: rec.evidenceHash,
-          computed: computedHash,
-          match: rec.evidenceHash === computedHash,
-        });
+      // Fetch declaration from URI
+      await loadDeclaration(rec);
+
+      // Fetch evidence if attached
+      if (rec.evidenceHash !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        await loadEvidence(rec);
+      } else {
+        setEvidenceStatus('NO_EVIDENCE_ATTACHED');
       }
     } catch (err) {
       setError(err.message);
+      setDeclarationStatus('ERROR');
+      setEvidenceStatus('ERROR');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const loadDeclaration = async (rec) => {
+    try {
+      if (!rec.declarationURI) {
+        throw new Error('No declaration URI in record');
+      }
+
+      const decl = await fetchManifest(rec.declarationURI, IPFS_GATEWAY);
+
+      // Verify integrity
+      const computedHash = hashManifest(decl);
+      if (computedHash !== rec.declarationHash) {
+        setDeclarationStatus('INTEGRITY_MISMATCH');
+        throw new Error(
+          `Declaration hash mismatch: computed ${computedHash} !== stored ${rec.declarationHash}`
+        );
+      }
+
+      setFetchedDeclaration(decl);
+      setDeclarationStatus('LOADED');
+    } catch (err) {
+      setDeclarationStatus('MANIFEST_NOT_LOADED');
+      throw err;
+    }
+  };
+
+  const loadEvidence = async (rec) => {
+    try {
+      if (!rec.evidenceURI) {
+        setEvidenceStatus('NO_EVIDENCE_ATTACHED');
+        return;
+      }
+
+      const evidence = await fetchManifest(rec.evidenceURI, IPFS_GATEWAY);
+
+      // Verify integrity
+      const computedHash = hashManifest(evidence);
+      if (computedHash !== rec.evidenceHash) {
+        setIntegrityStatus('INTEGRITY_MISMATCH');
+        setEvidenceStatus('INTEGRITY_MISMATCH');
+        throw new Error(
+          `Evidence hash mismatch: computed ${computedHash} !== stored ${rec.evidenceHash}`
+        );
+      }
+
+      setFetchedEvidence(evidence);
+      setIntegrityStatus('INTEGRITY_MATCH');
+      setEvidenceStatus('LOADED');
+    } catch (err) {
+      setEvidenceStatus('MANIFEST_NOT_LOADED');
+      throw err;
+    }
   };
 
   if (loading) {
     return <div className="receipt-container"><p>Loading receipt...</p></div>;
   }
 
-  if (error || !record) {
+  if (error || !record || !fetchedDeclaration) {
     return (
       <div className="receipt-container">
-        <p className="error">{error || 'Receipt not found'}</p>
+        <p className="error">
+          {error || 'Receipt not found'}
+          {declarationStatus === 'MANIFEST_NOT_LOADED' && ' (declaration not found on IPFS)'}
+        </p>
         <button onClick={() => onNavigate('landing')} className="back-button">
           ← Start Over
         </button>
@@ -55,25 +124,19 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
   // Derive states
   const declaredAt = new Date(Number(record.declaredAt) * 1000);
   const deadline = new Date(Number(record.deadline) * 1000);
-  const evidenceAttachedAt = record.evidenceAttachedAt === 0n ? null : new Date(Number(record.evidenceAttachedAt) * 1000);
+  const evidenceAttachedAt =
+    record.evidenceAttachedAt === 0n ? null : new Date(Number(record.evidenceAttachedAt) * 1000);
 
   const timingStatus = evidenceAttachedAt
     ? evidenceAttachedAt <= deadline
-      ? 'ATTACHED ON TIME'
-      : 'ATTACHED LATE'
-    : 'NO EVIDENCE ATTACHED';
-
-  const integrityStatus =
-    !evidenceAttachedAt ? 'NO EVIDENCE' : integrity
-      ? integrity.match
-        ? 'INTEGRITY MATCH'
-        : 'INTEGRITY MISMATCH'
-      : 'UNKNOWN';
+      ? 'ATTACHED_ON_TIME'
+      : 'ATTACHED_LATE'
+    : 'NO_EVIDENCE_ATTACHED';
 
   // Map evidence to conditions
   const evidenceByCondition = {};
-  if (evidenceManifest && evidenceManifest.evidence) {
-    evidenceManifest.evidence.forEach((e) => {
+  if (fetchedEvidence && fetchedEvidence.evidence) {
+    fetchedEvidence.evidence.forEach((e) => {
       e.conditionIds.forEach((cId) => {
         if (!evidenceByCondition[cId]) {
           evidenceByCondition[cId] = [];
@@ -83,7 +146,7 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
     });
   }
 
-  const unaccountedConditions = declaration.conditions.filter(
+  const unaccountedConditions = fetchedDeclaration.conditions.filter(
     (c) => !evidenceByCondition[c.id]
   );
 
@@ -102,10 +165,10 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
           <section className="stated-section">
             <h2>WHAT WAS STATED</h2>
             <div className="stated-box">
-              <h3>{declaration.project.title}</h3>
-              <p className="promise">{declaration.project.promise}</p>
+              <h3>{fetchedDeclaration.project.title}</h3>
+              <p className="promise">{fetchedDeclaration.project.promise}</p>
               <div className="conditions">
-                {declaration.conditions.map((c) => (
+                {fetchedDeclaration.conditions.map((c) => (
                   <div key={c.id} className="condition">
                     {evidenceByCondition[c.id] ? '✓' : '—'} {c.text}
                   </div>
@@ -119,9 +182,9 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
             <h2>WHAT WAS SHOWN</h2>
             {evidenceAttachedAt ? (
               <div className="shown-box">
-                {evidenceManifest && evidenceManifest.evidence && evidenceManifest.evidence.length > 0 ? (
+                {fetchedEvidence && fetchedEvidence.evidence && fetchedEvidence.evidence.length > 0 ? (
                   <ul className="evidence-list">
-                    {evidenceManifest.evidence.map((e) => (
+                    {fetchedEvidence.evidence.map((e) => (
                       <li key={e.id}>
                         <strong>{e.label}</strong>
                         {e.uri && <a href={e.uri} target="_blank" rel="noopener noreferrer">{e.uri}</a>}
@@ -187,14 +250,13 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
               <div className={`status-badge integrity-status ${integrityStatus.replace(/\s+/g, '-').toLowerCase()}`}>
                 {integrityStatus}
               </div>
-              {integrity && (
+              {integrityStatus !== 'UNKNOWN' && (
                 <div className="integrity-details">
-                  <p><strong>Stored hash:</strong> {integrity.stored.slice(0, 16)}...</p>
-                  <p><strong>Computed hash:</strong> {integrity.computed.slice(0, 16)}...</p>
+                  <p><strong>Stored hash:</strong> {record.evidenceHash.slice(0, 16)}...</p>
                   <p className="integrity-note">
-                    {integrity.match
-                      ? 'The evidence manifest on your device matches the hash recorded onchain.'
-                      : 'The evidence manifest on your device does NOT match the hash recorded onchain. The evidence may have been modified.'}
+                    {integrityStatus === 'INTEGRITY_MATCH'
+                      ? 'The evidence manifest fetched from IPFS matches the hash recorded onchain.'
+                      : 'The evidence manifest does NOT match the hash recorded onchain. The evidence may have been modified or is corrupted.'}
                   </p>
                 </div>
               )}
@@ -239,11 +301,21 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
                 <label>Declaration Hash</label>
                 <code>{record.declarationHash.slice(0, 12)}...</code>
               </div>
+              <div className="detail">
+                <label>Declaration URI</label>
+                <code>{record.declarationURI.slice(0, 30)}...</code>
+              </div>
               {record.evidenceHash !== '0x0000000000000000000000000000000000000000000000000000000000000000' && (
-                <div className="detail">
-                  <label>Evidence Hash</label>
-                  <code>{record.evidenceHash.slice(0, 12)}...</code>
-                </div>
+                <>
+                  <div className="detail">
+                    <label>Evidence Hash</label>
+                    <code>{record.evidenceHash.slice(0, 12)}...</code>
+                  </div>
+                  <div className="detail">
+                    <label>Evidence URI</label>
+                    <code>{record.evidenceURI.slice(0, 30)}...</code>
+                  </div>
+                </>
               )}
             </div>
           </section>

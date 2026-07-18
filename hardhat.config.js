@@ -14,6 +14,7 @@ module.exports = {
         enabled: true,
         runs: 200,
       },
+      evmVersion: "paris",
     },
   },
   networks: {
@@ -22,6 +23,26 @@ module.exports = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 10143,
     },
+    monadTestnet: {
+      url: process.env.MONAD_RPC_URL || "https://testnet-rpc.monad.xyz",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 10143,
+    },
+  },
+  etherscan: {
+    apiKey: {
+      monadTestnet: "placeholder",
+    },
+    customChains: [
+      {
+        network: "monadTestnet",
+        chainId: 10143,
+        urls: {
+          apiURL: "https://testnet-explorer.monad.xyz/api",
+          browserURL: "https://testnet-explorer.monad.xyz",
+        },
+      },
+    ],
   },
   paths: {
     sources: "./contracts",

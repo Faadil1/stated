@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { attachEvidence } from '../utils/contract';
-import { hashManifest, validateEvidence } from '../utils/manifest';
+import { hashManifest, validateEvidence, uploadManifest } from '../utils/manifest';
 import '../styles/AttachEvidence.css';
 
 export default function AttachEvidence({ declaration, recordId, onNavigate, onEvidenceAttached }) {
@@ -76,18 +76,30 @@ export default function AttachEvidence({ declaration, recordId, onNavigate, onEv
       // Validate
       validateEvidence(manifestData, declaration);
 
-      // Hash
-      const evidenceHash = hashManifest(manifestData);
-      const evidenceURI = 'ipfs://evidence-' + evidenceHash.slice(2);
+      // Hash locally
+      const localEvidenceHash = hashManifest(manifestData);
 
-      // Store in localStorage
-      localStorage.setItem(`evidence-${evidenceHash}`, JSON.stringify(manifestData));
+      // Upload to IPFS via server endpoint
+      setError(null);
+      const uploadResult = await uploadManifest(manifestData, 'evidence');
 
-      // Attach to contract
-      await attachEvidence(recordId, evidenceHash, evidenceURI);
+      // Verify hash consistency
+      if (uploadResult.manifestHash !== localEvidenceHash) {
+        throw new Error(
+          `Hash mismatch: local ${localEvidenceHash} !== server ${uploadResult.manifestHash}`
+        );
+      }
+
+      // Attach to contract with real IPFS URI
+      await attachEvidence(recordId, localEvidenceHash, uploadResult.uri);
 
       setSuccess(true);
-      onEvidenceAttached({ recordId, evidenceHash, evidence: manifestData });
+      onEvidenceAttached({
+        recordId,
+        evidenceHash: localEvidenceHash,
+        evidenceURI: uploadResult.uri,
+        evidence: manifestData,
+      });
       setTimeout(() => {
         onNavigate('receipt');
       }, 2000);

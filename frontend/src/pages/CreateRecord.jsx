@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createRecord, getOwnerRecords } from '../utils/contract';
-import { hashManifest, validateDeclaration } from '../utils/manifest';
+import { hashManifest, validateDeclaration, uploadManifest } from '../utils/manifest';
 import '../styles/CreateRecord.css';
 
 export default function CreateRecord({ walletAddress, onNavigate, onRecordCreated }) {
@@ -61,28 +61,41 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
       // Validate
       validateDeclaration(declaration);
 
-      // Hash
-      const declarationHash = hashManifest(declaration);
+      // Hash locally
+      const localDeclarationHash = hashManifest(declaration);
+
+      // Upload to IPFS via server endpoint
+      setError(null);
+      const uploadResult = await uploadManifest(declaration, 'declaration');
+
+      // Verify hash consistency
+      if (uploadResult.manifestHash !== localDeclarationHash) {
+        throw new Error(
+          `Hash mismatch: local ${localDeclarationHash} !== server ${uploadResult.manifestHash}`
+        );
+      }
 
       // Prepare deadline as Unix timestamp
       const deadlineUnix = Math.floor(deadlineDate.getTime() / 1000);
 
-      // Store declaration in localStorage for later
-      const declarationURI = 'ipfs://declaration-' + declarationHash.slice(2);
-      localStorage.setItem(`declaration-${declarationHash}`, JSON.stringify(declaration));
-
-      // Create record
+      // Create record with real IPFS URI
       const receipt = await createRecord(
         deadlineUnix,
-        declarationHash,
-        declarationURI
+        localDeclarationHash,
+        uploadResult.uri
       );
 
       // Get record ID from events
       const recordId = 0; // In a real app, parse from receipt events
 
       setSuccess(true);
-      onRecordCreated({ recordId, declaration, declarationHash });
+      // Store receipt data but NOT the manifest (it's on IPFS now)
+      onRecordCreated({
+        recordId,
+        declaration,
+        declarationHash: localDeclarationHash,
+        declarationURI: uploadResult.uri,
+      });
       setTimeout(() => {
         onNavigate('attach');
       }, 2000);

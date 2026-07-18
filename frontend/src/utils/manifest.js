@@ -1,6 +1,8 @@
 import { ethers } from 'ethers';
 import { canonicalize } from 'json-canonicalize';
 
+const UPLOAD_API = import.meta.env.VITE_API_URL || '/api';
+
 export function canonicalizeManifest(manifest) {
   return canonicalize(manifest);
 }
@@ -9,6 +11,62 @@ export function hashManifest(manifest) {
   const canonical = canonicalizeManifest(manifest);
   const utf8Bytes = ethers.toUtf8Bytes(canonical);
   return ethers.keccak256(utf8Bytes);
+}
+
+/**
+ * Upload manifest to IPFS via server-side endpoint
+ * Server handles Pinata credentials securely
+ * Returns { uri, cid, manifestHash, gatewayURL }
+ */
+export async function uploadManifest(manifest, type) {
+  if (!['declaration', 'evidence'].includes(type)) {
+    throw new Error('Type must be "declaration" or "evidence"');
+  }
+
+  const response = await fetch(`${UPLOAD_API}/upload-manifest`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ manifest, type }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Upload failed');
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch manifest from IPFS gateway
+ * Converts ipfs:// URI to HTTP gateway URL
+ */
+export async function fetchManifest(uri, gatewayURL = 'https://ipfs.io') {
+  if (!uri) {
+    throw new Error('No URI provided');
+  }
+
+  let fetchURL = uri;
+
+  // Convert ipfs:// to gateway URL
+  if (uri.startsWith('ipfs://')) {
+    const cid = uri.replace('ipfs://', '').split('/')[0];
+    fetchURL = `${gatewayURL}/ipfs/${cid}`;
+
+    // Handle versioned URIs like ipfs://cid/manifest.json
+    if (uri.includes('/')) {
+      const path = uri.split('/').slice(1).join('/');
+      fetchURL = `${gatewayURL}/ipfs/${cid}/${path}`;
+    }
+  }
+
+  const response = await fetch(fetchURL);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch manifest from ${fetchURL}`);
+  }
+
+  return response.json();
 }
 
 export function validateDeclaration(manifest) {
