@@ -113,18 +113,18 @@ describe('Manifest Utilities', () => {
       global.fetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          uri: 'ipfs://QmABC123/manifest.json',
-          cid: 'QmABC123',
+          uri: 'ipfs://bafy1234567890abcdef',
+          cid: 'bafy1234567890abcdef',
           manifestHash: expectedHash,
-          gatewayURL: 'https://ipfs.io/ipfs/QmABC123/manifest.json',
+          gatewayURL: 'https://ipfs.io/ipfs/bafy1234567890abcdef',
         }),
       });
 
       const result = await uploadManifest(manifest, 'declaration');
 
-      expect(result.uri).toBe('ipfs://QmABC123/manifest.json');
+      expect(result.uri).toBe('ipfs://bafy1234567890abcdef');
       expect(result.manifestHash).toBe(expectedHash);
-      expect(result.cid).toBe('QmABC123');
+      expect(result.cid).toBe('bafy1234567890abcdef');
     });
 
     it('should reject invalid type', async () => {
@@ -168,10 +168,10 @@ describe('Manifest Utilities', () => {
       global.fetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          uri: 'ipfs://QmABC123/manifest.json',
-          cid: 'QmABC123',
+          uri: 'ipfs://bafy1234567890abcdef',
+          cid: 'bafy1234567890abcdef',
           manifestHash: differentHash, // Wrong hash
-          gatewayURL: 'https://ipfs.io/ipfs/QmABC123/manifest.json',
+          gatewayURL: 'https://ipfs.io/ipfs/bafy1234567890abcdef',
         }),
       });
 
@@ -200,11 +200,11 @@ describe('Manifest Utilities', () => {
         json: async () => manifest,
       });
 
-      const result = await fetchManifest('ipfs://QmABC123/manifest.json');
+      const result = await fetchManifest('ipfs://bafy1234567890abcdef');
 
       expect(result).toEqual(manifest);
       expect(global.fetch).toHaveBeenCalledWith(
-        'https://ipfs.io/ipfs/QmABC123/manifest.json'
+        'https://ipfs.io/ipfs/bafy1234567890abcdef'
       );
     });
 
@@ -231,10 +231,10 @@ describe('Manifest Utilities', () => {
         json: async () => manifest,
       });
 
-      await fetchManifest('ipfs://QmABC123/manifest.json', 'https://custom.gateway');
+      await fetchManifest('ipfs://bafy1234567890abcdef', 'https://custom.gateway');
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'https://custom.gateway/ipfs/QmABC123/manifest.json'
+        'https://custom.gateway/ipfs/bafy1234567890abcdef'
       );
     });
 

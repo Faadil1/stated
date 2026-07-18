@@ -46,7 +46,7 @@ describe('Public Receipt Architecture', () => {
       // Simulate fresh session with empty localStorage
       localStorage.clear();
 
-      const fetched = await fetchManifest('ipfs://QmTest123/manifest.json');
+      const fetched = await fetchManifest('ipfs://bafy1234567890test');
       const fetchedHash = hashManifest(fetched);
 
       expect(fetchedHash).toBe(declarationHash);
@@ -63,7 +63,7 @@ describe('Public Receipt Architecture', () => {
 
       localStorage.clear();
 
-      const fetched = await fetchManifest('ipfs://QmEvidence/manifest.json');
+      const fetched = await fetchManifest('ipfs://bafy1234567890evidence');
       const fetchedHash = hashManifest(fetched);
 
       expect(fetchedHash).toBe(evidenceHash);
@@ -78,9 +78,9 @@ describe('Public Receipt Architecture', () => {
       const onchainRecord = {
         owner: '0x...',
         declarationHash: hashManifest(mockDeclaration),
-        declarationURI: 'ipfs://QmDecl/manifest.json',
+        declarationURI: 'ipfs://bafy1234567890decl',
         evidenceHash: hashManifest(mockEvidence),
-        evidenceURI: 'ipfs://QmEvid/manifest.json',
+        evidenceURI: 'ipfs://bafy1234567890evid',
         evidenceAttachedAt: 1000000n,
       };
 
@@ -154,7 +154,7 @@ describe('Public Receipt Architecture', () => {
     it('should handle declaration-only receipt', async () => {
       const onchainRecord = {
         declarationHash: hashManifest(mockDeclaration),
-        declarationURI: 'ipfs://QmDecl/manifest.json',
+        declarationURI: 'ipfs://bafy1234567890decl',
         evidenceHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
         evidenceURI: '',
         evidenceAttachedAt: 0n,
@@ -174,9 +174,9 @@ describe('Public Receipt Architecture', () => {
     it('should handle receipt with evidence', async () => {
       const onchainRecord = {
         declarationHash: hashManifest(mockDeclaration),
-        declarationURI: 'ipfs://QmDecl/manifest.json',
+        declarationURI: 'ipfs://bafy1234567890decl',
         evidenceHash: hashManifest(mockEvidence),
-        evidenceURI: 'ipfs://QmEvid/manifest.json',
+        evidenceURI: 'ipfs://bafy1234567890evid',
         evidenceAttachedAt: 1000000n,
       };
 
@@ -267,7 +267,7 @@ describe('Public Receipt Architecture', () => {
 
       const onchainData = {
         declarationHash: hashManifest(mockDeclaration),
-        declarationURI: 'ipfs://QmDecl/manifest.json',
+        declarationURI: 'ipfs://bafy1234567890decl',
       };
 
       // Can compute hash without localStorage
@@ -312,7 +312,7 @@ describe('Public Receipt Architecture', () => {
         const record = {
           recordId: id,
           declarationHash: hashManifest(mockDeclaration),
-          declarationURI: 'ipfs://QmDecl/manifest.json',
+          declarationURI: 'ipfs://bafy1234567890decl',
         };
 
         expect(record.recordId).toBe(id);
@@ -326,7 +326,7 @@ describe('Public Receipt Architecture', () => {
     it('should derive recordId from contract event', () => {
       // Mock contract event
       const event = {
-        args: [1, '0xUser', 1234567, 999, hashManifest(mockDeclaration), 'ipfs://QmDecl/manifest.json'],
+        args: [1, '0xUser', 1234567, 999, hashManifest(mockDeclaration), 'ipfs://bafy1234567890decl'],
         transactionHash: '0xTx',
       };
 

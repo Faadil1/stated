@@ -26,20 +26,13 @@ function hashManifest(canonical) {
 }
 
 /**
- * Upload to IPFS via Pinata (public endpoint, no auth needed for basic use)
- * or use a server-side authenticated service
+ * Upload to IPFS via Pinata (v3 API, authenticated only)
  */
 async function uploadToIPFS(canonicalBytes) {
-  // Option 1: Use Pinata's public endpoint (for non-sensitive uploads)
-  // Option 2: Use server-side Web3.Storage token
-  // Option 3: Use Storacha with delegated capabilities
-
-  // For production, use authenticated Pinata or Web3.Storage with server-side token
   const pinataToken = process.env.PINATA_JWT;
 
   if (!pinataToken) {
-    // Fallback: use Pinata public endpoint (slower, less reliable)
-    return uploadToPublicPinata(canonicalBytes);
+    throw new Error('PINATA_JWT environment variable is not configured');
   }
 
   return uploadToAuthenticatedPinata(canonicalBytes, pinataToken);
@@ -79,64 +72,16 @@ async function uploadToAuthenticatedPinata(canonicalBytes, token) {
 
     const data = await response.json();
 
-    // Pinata v3 response format: {IpfsHash: "Qm...", ...} or {files: [{cid: "Qm..."}]}
-    const cid = data.IpfsHash || (data.files && data.files[0] && data.files[0].cid);
+    // Pinata v3 response format: {data: {cid: "bafy..."}}
+    const cid = data?.data?.cid;
 
     if (!cid) {
-      throw new Error('No CID returned from Pinata');
+      throw new Error('No CID returned from Pinata (missing data.data.cid)');
     }
 
     return {
       cid,
-      gateway: `${GATEWAY_URL}/ipfs/${cid}/manifest.json`,
-    };
-  } catch (err) {
-    throw err;
-  }
-}
-
-/**
- * Fallback: upload to public Pinata endpoint (no auth)
- * Not recommended for production
- */
-async function uploadToPublicPinata(canonicalBytes) {
-  try {
-    // Create FormData with file and network field
-    const formData = new FormData();
-
-    // Create a Blob from canonical bytes
-    const blob = new Blob([canonicalBytes], { type: 'application/json' });
-
-    // Append file with name "manifest.json"
-    formData.append('file', blob, 'manifest.json');
-
-    // Append network field for public upload
-    formData.append('network', 'public');
-
-    // POST to Pinata v3 endpoint without authentication
-    const response = await fetch('https://uploads.pinata.cloud/v3/files', {
-      method: 'POST',
-      body: formData,
-      timeout: 30000,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Pinata API error: ${response.status} ${errorText}`);
-    }
-
-    const data = await response.json();
-
-    // Pinata v3 response format: {IpfsHash: "Qm...", ...} or {files: [{cid: "Qm..."}]}
-    const cid = data.IpfsHash || (data.files && data.files[0] && data.files[0].cid);
-
-    if (!cid) {
-      throw new Error('No CID returned from Pinata');
-    }
-
-    return {
-      cid,
-      gateway: `${GATEWAY_URL}/ipfs/${cid}/manifest.json`,
+      gateway: `${GATEWAY_URL}/ipfs/${cid}`,
     };
   } catch (err) {
     throw err;
@@ -194,7 +139,7 @@ module.exports = async (req, res) => {
 
     // Return results
     return res.status(200).json({
-      uri: `ipfs://${cid}/manifest.json`,
+      uri: `ipfs://${cid}`,
       cid,
       manifestHash,
       gatewayURL: gateway,

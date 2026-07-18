@@ -225,16 +225,17 @@ describe('api/upload-manifest handler', () => {
   describe('Response Format (expected)', () => {
     it('should return ipfs:// URI in response', () => {
       const mockResponse = {
-        uri: 'ipfs://QmTestHash123/manifest.json',
-        cid: 'QmTestHash123',
+        uri: 'ipfs://bafy1234567890abcdef',
+        cid: 'bafy1234567890abcdef',
         manifestHash: '0x' + 'a'.repeat(64),
-        gatewayURL: 'https://ipfs.io/ipfs/QmTestHash123/manifest.json',
+        gatewayURL: 'https://ipfs.io/ipfs/bafy1234567890abcdef',
       };
 
-      expect(mockResponse.uri).toMatch(/^ipfs:\/\/Qm.*\/manifest\.json$/);
-      expect(mockResponse.cid).toMatch(/^Qm/);
+      expect(mockResponse.uri).toMatch(/^ipfs:\/\/bafy[a-z0-9]+$/);
+      expect(mockResponse.cid).toMatch(/^bafy/);
       expect(mockResponse.manifestHash).toMatch(/^0x[0-9a-f]{64}$/i);
       expect(mockResponse.gatewayURL).toMatch(/^https:\/\//);
+      expect(mockResponse.gatewayURL).not.toMatch(/\/manifest\.json$/);
     });
   });
 
@@ -244,12 +245,63 @@ describe('api/upload-manifest handler', () => {
       expect(process.env.PINATA_JWT).toBe('test-jwt-value');
     });
 
-    it('should handle missing PINATA_JWT gracefully', () => {
+    it('should reject missing PINATA_JWT', () => {
       delete process.env.PINATA_JWT;
 
       const pinataToken = process.env.PINATA_JWT;
-      // Code should handle undefined gracefully (fallback to public endpoint)
+      // Code requires PINATA_JWT - no fallback to anonymous/public
       expect(pinataToken).toBeUndefined();
+    });
+  });
+
+  describe('Pinata v3 Response Format', () => {
+    it('should parse v3 response with data.data.cid', () => {
+      const v3Response = {
+        data: {
+          cid: 'bafy1234567890abcdefghijk'
+        }
+      };
+
+      const cid = v3Response?.data?.cid;
+      expect(cid).toBe('bafy1234567890abcdefghijk');
+    });
+
+    it('should reject response missing data.data.cid', () => {
+      const invalidResponses = [
+        {},
+        { data: {} },
+        { data: { hash: 'bafy...' } },
+        { IpfsHash: 'bafy...' },
+        { files: [{ cid: 'bafy...' }] }
+      ];
+
+      invalidResponses.forEach(resp => {
+        const cid = resp?.data?.cid;
+        expect(cid).toBeUndefined();
+      });
+    });
+  });
+
+  describe('IPFS URI Format', () => {
+    it('should return URI without /manifest.json', () => {
+      const cid = 'bafy1234567890abcdefghijk';
+      const uri = `ipfs://${cid}`;
+      const gateway = `https://ipfs.io/ipfs/${cid}`;
+
+      expect(uri).not.toMatch(/\/manifest\.json$/);
+      expect(gateway).not.toMatch(/\/manifest\.json$/);
+      expect(uri).toMatch(/^ipfs:\/\/bafy/);
+    });
+
+    it('should use single-file IPFS addressing', () => {
+      const mockResponse = {
+        uri: 'ipfs://bafy1234567890abcdefghijk',
+        gatewayURL: 'https://ipfs.io/ipfs/bafy1234567890abcdefghijk'
+      };
+
+      // Single file, not directory
+      expect(mockResponse.uri.split('/').length).toBe(3); // protocol + empty + cid
+      expect(mockResponse.gatewayURL.split('/').length).toBe(5); // https + empty + ipfs + bafy + cid
     });
   });
 
