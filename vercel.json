@@ -1,7 +1,6 @@
 {
   "functions": {
     "api/upload-manifest.js": {
-      "runtime": "nodejs24.x",
       "memory": 512
     }
   },

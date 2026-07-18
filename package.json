@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A promise-versus-proof receipt for builders",
   "main": "index.js",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "test": "hardhat test",
     "test:verbose": "hardhat test --verbose",
