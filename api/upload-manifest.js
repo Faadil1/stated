@@ -9,7 +9,6 @@
  */
 
 const { ethers } = require('ethers');
-const https = require('https');
 const { canonicalize } = require('json-canonicalize');
 const { validateManifest } = require('../shared/manifest-utils');
 
@@ -47,65 +46,53 @@ async function uploadToIPFS(canonicalBytes) {
 }
 
 /**
- * Upload to Pinata using server-side authentication
+ * Upload to Pinata using server-side authentication (v3 API)
  */
 async function uploadToAuthenticatedPinata(canonicalBytes, token) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'api.pinata.cloud',
-      path: '/pinning/pinFileToIPFS',
+  try {
+    // Create FormData with file and network field
+    const formData = new FormData();
+
+    // Create a Blob from canonical bytes
+    const blob = new Blob([canonicalBytes], { type: 'application/json' });
+
+    // Append file with name "manifest.json"
+    formData.append('file', blob, 'manifest.json');
+
+    // Append network field for public upload
+    formData.append('network', 'public');
+
+    // POST to Pinata v3 endpoint
+    const response = await fetch('https://uploads.pinata.cloud/v3/files', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
+      body: formData,
       timeout: 30000,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Pinata API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    // Pinata v3 response format: {IpfsHash: "Qm...", ...} or {files: [{cid: "Qm..."}]}
+    const cid = data.IpfsHash || (data.files && data.files[0] && data.files[0].cid);
+
+    if (!cid) {
+      throw new Error('No CID returned from Pinata');
+    }
+
+    return {
+      cid,
+      gateway: `${GATEWAY_URL}/ipfs/${cid}/manifest.json`,
     };
-
-    const req = https.request(options, (res) => {
-      let data = '';
-
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      res.on('end', () => {
-        try {
-          if (res.statusCode !== 200) {
-            throw new Error(`Pinata API error: ${res.statusCode} ${data}`);
-          }
-
-          const response = JSON.parse(data);
-          resolve({
-            cid: response.IpfsHash,
-            gateway: `${GATEWAY_URL}/ipfs/${response.IpfsHash}/manifest.json`,
-          });
-        } catch (err) {
-          reject(err);
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.on('timeout', () => {
-      req.destroy();
-      reject(new Error('Pinata upload timeout'));
-    });
-
-    // Send the canonical manifest
-    const payload = JSON.stringify({
-      pinataContent: JSON.parse(canonicalBytes.toString()),
-      pinataMetadata: {
-        name: 'stated-manifest.json',
-      },
-      pinataOptions: {
-        cidVersion: 1,
-      },
-    });
-
-    req.write(payload);
-    req.end();
-  });
+  } catch (err) {
+    throw err;
+  }
 }
 
 /**
@@ -113,46 +100,47 @@ async function uploadToAuthenticatedPinata(canonicalBytes, token) {
  * Not recommended for production
  */
 async function uploadToPublicPinata(canonicalBytes) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'api.pinata.cloud',
-      path: '/pinning/pinJSONToIPFS',
+  try {
+    // Create FormData with file and network field
+    const formData = new FormData();
+
+    // Create a Blob from canonical bytes
+    const blob = new Blob([canonicalBytes], { type: 'application/json' });
+
+    // Append file with name "manifest.json"
+    formData.append('file', blob, 'manifest.json');
+
+    // Append network field for public upload
+    formData.append('network', 'public');
+
+    // POST to Pinata v3 endpoint without authentication
+    const response = await fetch('https://uploads.pinata.cloud/v3/files', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      body: formData,
       timeout: 30000,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Pinata API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    // Pinata v3 response format: {IpfsHash: "Qm...", ...} or {files: [{cid: "Qm..."}]}
+    const cid = data.IpfsHash || (data.files && data.files[0] && data.files[0].cid);
+
+    if (!cid) {
+      throw new Error('No CID returned from Pinata');
+    }
+
+    return {
+      cid,
+      gateway: `${GATEWAY_URL}/ipfs/${cid}/manifest.json`,
     };
-
-    const req = https.request(options, (res) => {
-      let data = '';
-
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      res.on('end', () => {
-        try {
-          const response = JSON.parse(data);
-          resolve({
-            cid: response.IpfsHash,
-            gateway: `${GATEWAY_URL}/ipfs/${response.IpfsHash}`,
-          });
-        } catch (err) {
-          reject(err);
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.on('timeout', () => {
-      req.destroy();
-      reject(new Error('Pinata upload timeout'));
-    });
-
-    req.write(canonicalBytes.toString());
-    req.end();
-  });
+  } catch (err) {
+    throw err;
+  }
 }
 
 /**
