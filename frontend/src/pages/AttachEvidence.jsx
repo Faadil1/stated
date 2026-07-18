@@ -101,7 +101,7 @@ export default function AttachEvidence({ declaration, recordId, onNavigate, onEv
         evidence: manifestData,
       });
       setTimeout(() => {
-        onNavigate('receipt');
+        onNavigate('receipt', recordId);
       }, 2000);
     } catch (err) {
       setError(err.message);
@@ -115,7 +115,7 @@ export default function AttachEvidence({ declaration, recordId, onNavigate, onEv
       <div className="attach-evidence">
         <div className="container">
           <p className="error">No declaration found. Create a record first.</p>
-          <button onClick={() => onNavigate('create')} className="back-button">
+          <button onClick={() => onNavigate('create', null)} className="back-button">
             ← Create Record
           </button>
         </div>
@@ -252,7 +252,7 @@ export default function AttachEvidence({ declaration, recordId, onNavigate, onEv
         {error && <div className="error-message">{error}</div>}
 
         <nav className="nav-buttons">
-          <button onClick={() => onNavigate('create')} className="back-button">
+          <button onClick={() => onNavigate('create', null)} className="back-button">
             ← Back to Create Record
           </button>
         </nav>

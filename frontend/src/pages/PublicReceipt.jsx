@@ -114,7 +114,7 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
           {error || 'Receipt not found'}
           {declarationStatus === 'MANIFEST_NOT_LOADED' && ' (declaration not found on IPFS)'}
         </p>
-        <button onClick={() => onNavigate('landing')} className="back-button">
+        <button onClick={() => onNavigate('landing', null)} className="back-button">
           ← Start Over
         </button>
       </div>
@@ -322,7 +322,7 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
         </div>
 
         <nav className="nav-buttons">
-          <button onClick={() => onNavigate('landing')} className="back-button">
+          <button onClick={() => onNavigate('landing', null)} className="back-button">
             ← Create Another Record
           </button>
         </nav>

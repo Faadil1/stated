@@ -97,7 +97,7 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
         declarationURI: uploadResult.uri,
       });
       setTimeout(() => {
-        onNavigate('attach');
+        onNavigate('attach', recordId);
       }, 2000);
     } catch (err) {
       setError(err.message);
@@ -206,7 +206,7 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
         {error && <div className="error-message">{error}</div>}
 
         <nav className="nav-buttons">
-          <button onClick={() => onNavigate('landing')} className="back-button">
+          <button onClick={() => onNavigate('landing', null)} className="back-button">
             ← Back to Landing
           </button>
         </nav>
