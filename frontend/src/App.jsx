@@ -3,6 +3,7 @@ import Landing from './pages/Landing';
 import CreateRecord from './pages/CreateRecord';
 import AttachEvidence from './pages/AttachEvidence';
 import PublicReceipt from './pages/PublicReceipt';
+import { useNetwork } from './hooks/useNetwork';
 import './App.css';
 
 export default function App() {
@@ -10,6 +11,7 @@ export default function App() {
   const [walletAddress, setWalletAddress] = useState(null);
   const [recordData, setRecordData] = useState(null);
   const [evidenceData, setEvidenceData] = useState(null);
+  const networkState = useNetwork();
 
   const handleNavigate = (page) => {
     setCurrentPage(page);
@@ -29,6 +31,7 @@ export default function App() {
         <Landing
           onNavigate={handleNavigate}
           setWalletAddress={setWalletAddress}
+          networkState={networkState}
         />
       )}
       {currentPage === 'create' && (
@@ -36,6 +39,7 @@ export default function App() {
           walletAddress={walletAddress}
           onNavigate={handleNavigate}
           onRecordCreated={handleRecordCreated}
+          networkState={networkState}
         />
       )}
       {currentPage === 'attach' && (
@@ -44,6 +48,7 @@ export default function App() {
           recordId={recordData?.recordId}
           onNavigate={handleNavigate}
           onEvidenceAttached={handleEvidenceAttached}
+          networkState={networkState}
         />
       )}
       {currentPage === 'receipt' && (
@@ -52,6 +57,7 @@ export default function App() {
           declaration={recordData?.declaration}
           evidenceManifest={evidenceData?.evidence}
           onNavigate={handleNavigate}
+          networkState={networkState}
         />
       )}
     </div>

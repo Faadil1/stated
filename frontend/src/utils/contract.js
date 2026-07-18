@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { getNetworkSigner, ensureMonadNetwork, getNetworkProvider } from './network';
 
 // Contract address must be configured via environment variable
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
@@ -33,9 +34,14 @@ export async function getProvider() {
   return new ethers.BrowserProvider(window.ethereum);
 }
 
+export async function getReadOnlyProvider() {
+  // For read-only calls, use a provider without network enforcement
+  return getProvider();
+}
+
 export async function getSigner() {
-  const provider = await getProvider();
-  return provider.getSigner();
+  // Use network-aware signer that enforces Monad
+  return getNetworkSigner();
 }
 
 export async function getContract(signer) {
@@ -47,6 +53,9 @@ export async function getContract(signer) {
 }
 
 export async function createRecord(deadline, declarationHash, declarationURI) {
+  // Enforce Monad network before transaction
+  await ensureMonadNetwork();
+
   const signer = await getSigner();
   const contract = await getContract(signer);
   const tx = await contract.createBuildRecord(deadline, declarationHash, declarationURI);
@@ -55,6 +64,9 @@ export async function createRecord(deadline, declarationHash, declarationURI) {
 }
 
 export async function attachEvidence(recordId, evidenceHash, evidenceURI) {
+  // Enforce Monad network before transaction
+  await ensureMonadNetwork();
+
   const signer = await getSigner();
   const contract = await getContract(signer);
   const tx = await contract.attachEvidence(recordId, evidenceHash, evidenceURI);

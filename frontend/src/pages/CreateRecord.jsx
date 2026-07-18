@@ -3,7 +3,7 @@ import { createRecord, getOwnerRecords } from '../utils/contract';
 import { hashManifest, validateDeclaration, uploadManifest } from '../utils/manifest';
 import '../styles/CreateRecord.css';
 
-export default function CreateRecord({ walletAddress, onNavigate, onRecordCreated }) {
+export default function CreateRecord({ walletAddress, onNavigate, onRecordCreated, networkState }) {
   const [formData, setFormData] = useState({
     title: '',
     promise: '',
@@ -178,12 +178,26 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
           <button
             type="submit"
             className="submit-button"
-            disabled={loading || activeConditions.length === 0}
+            disabled={loading || activeConditions.length === 0 || !networkState?.isMonad}
           >
             {loading ? 'Creating Record...' : 'Create Record'}
           </button>
         </form>
 
+        {!networkState?.isMonad && (
+          <div className="error-message">
+            ⚠️ Switch MetaMask to Monad Testnet before continuing.
+            {networkState?.switchNetwork && (
+              <button
+                onClick={networkState.switchNetwork}
+                className="network-switch-button"
+                disabled={networkState?.loading}
+              >
+                {networkState?.loading ? 'Switching...' : 'Switch to Monad Testnet'}
+              </button>
+            )}
+          </div>
+        )}
         {success && (
           <div className="success-message">
             ✓ Record created! Redirecting to attach evidence...

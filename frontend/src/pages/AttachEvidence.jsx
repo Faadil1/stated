@@ -3,7 +3,7 @@ import { attachEvidence } from '../utils/contract';
 import { hashManifest, validateEvidence, uploadManifest } from '../utils/manifest';
 import '../styles/AttachEvidence.css';
 
-export default function AttachEvidence({ declaration, recordId, onNavigate, onEvidenceAttached }) {
+export default function AttachEvidence({ declaration, recordId, onNavigate, onEvidenceAttached, networkState }) {
   const [evidence, setEvidence] = useState({
     items: [
       { id: 'evidence-1', conditionIds: [], label: '', uri: '' },
@@ -224,12 +224,26 @@ export default function AttachEvidence({ declaration, recordId, onNavigate, onEv
           <button
             type="submit"
             className="submit-button"
-            disabled={loading || evidence.items.filter((e) => e.label && e.uri).length === 0}
+            disabled={loading || evidence.items.filter((e) => e.label && e.uri).length === 0 || !networkState?.isMonad}
           >
             {loading ? 'Attaching Evidence...' : 'Attach Evidence'}
           </button>
         </form>
 
+        {!networkState?.isMonad && (
+          <div className="error-message">
+            ⚠️ Switch MetaMask to Monad Testnet before continuing.
+            {networkState?.switchNetwork && (
+              <button
+                onClick={networkState.switchNetwork}
+                className="network-switch-button"
+                disabled={networkState?.loading}
+              >
+                {networkState?.loading ? 'Switching...' : 'Switch to Monad Testnet'}
+              </button>
+            )}
+          </div>
+        )}
         {success && (
           <div className="success-message">
             ✓ Evidence attached! Generating receipt...
