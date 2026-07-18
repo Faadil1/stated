@@ -8,28 +8,40 @@ export function parseRoute() {
 
   // Root path
   if (pathname === '/' || pathname === '') {
-    return { page: 'landing', recordId: null };
+    return { page: 'landing', recordId: null, error: null };
   }
 
   // /create
   if (pathname === '/create') {
-    return { page: 'create', recordId: null };
+    return { page: 'create', recordId: null, error: null };
   }
 
   // /receipt/:recordId
-  const receiptMatch = pathname.match(/^\/receipt\/(\d+)$/);
+  const receiptMatch = pathname.match(/^\/receipt\/(.+)$/);
   if (receiptMatch) {
-    return { page: 'receipt', recordId: Number(receiptMatch[1]) };
+    const recordId = Number(receiptMatch[1]);
+    if (Number.isInteger(recordId) && recordId >= 0) {
+      return { page: 'receipt', recordId, error: null };
+    } else {
+      // Invalid record ID format
+      return { page: 'invalid-receipt', recordId: receiptMatch[1], error: `Invalid record ID: ${receiptMatch[1]}` };
+    }
   }
 
   // /attach/:recordId
-  const attachMatch = pathname.match(/^\/attach\/(\d+)$/);
+  const attachMatch = pathname.match(/^\/attach\/(.+)$/);
   if (attachMatch) {
-    return { page: 'attach', recordId: Number(attachMatch[1]) };
+    const recordId = Number(attachMatch[1]);
+    if (Number.isInteger(recordId) && recordId >= 0) {
+      return { page: 'attach', recordId, error: null };
+    } else {
+      // Invalid record ID format
+      return { page: 'invalid-attach', recordId: attachMatch[1], error: `Invalid record ID: ${attachMatch[1]}` };
+    }
   }
 
-  // Unknown route, default to landing
-  return { page: 'landing', recordId: null };
+  // Unknown route
+  return { page: 'not-found', recordId: null, error: `Route not found: ${pathname}` };
 }
 
 export function pushRoute(page, recordId = null) {

@@ -9,12 +9,13 @@ import './App.css';
 
 export default function App() {
   // Initialize from URL or default to landing
-  const { initialPage, initialRecordId } = useInitialRoute();
+  const { initialPage, initialRecordId, error: routeError } = useInitialRoute();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [walletAddress, setWalletAddress] = useState(null);
   const [recordData, setRecordData] = useState(null);
   const [evidenceData, setEvidenceData] = useState(null);
   const [currentRecordId, setCurrentRecordId] = useState(initialRecordId);
+  const [routeErrorMessage, setRouteErrorMessage] = useState(routeError);
   const networkState = useNetwork();
 
   const handleNavigate = (page, recordId = null) => {
@@ -54,7 +55,7 @@ export default function App() {
       {currentPage === 'attach' && (
         <AttachEvidence
           declaration={recordData?.declaration}
-          recordId={recordData?.recordId || currentRecordId}
+          recordId={recordData?.recordId ?? currentRecordId}
           onNavigate={handleNavigate}
           onEvidenceAttached={handleEvidenceAttached}
           networkState={networkState}
@@ -62,12 +63,23 @@ export default function App() {
       )}
       {currentPage === 'receipt' && (
         <PublicReceipt
-          recordId={recordData?.recordId || currentRecordId}
+          recordId={recordData?.recordId ?? currentRecordId}
           declaration={recordData?.declaration}
           evidenceManifest={evidenceData?.evidence}
           onNavigate={handleNavigate}
           networkState={networkState}
         />
+      )}
+      {(currentPage === 'invalid-receipt' || currentPage === 'invalid-attach' || currentPage === 'not-found') && (
+        <div className="error-page">
+          <div className="error-container">
+            <h1>Invalid Route</h1>
+            <p className="error-message">{routeErrorMessage}</p>
+            <button onClick={() => handleNavigate('landing')} className="back-button">
+              ← Return to Landing
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

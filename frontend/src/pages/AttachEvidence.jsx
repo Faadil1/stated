@@ -1,18 +1,56 @@
-import React, { useState } from 'react';
-import { attachEvidence } from '../utils/contract';
-import { hashManifest, validateEvidence, uploadManifest } from '../utils/manifest';
+import React, { useState, useEffect } from 'react';
+import { attachEvidence, getRecord } from '../utils/contract';
+import { hashManifest, validateEvidence, uploadManifest, fetchManifest } from '../utils/manifest';
 import '../styles/AttachEvidence.css';
 
-export default function AttachEvidence({ declaration, recordId, onNavigate, onEvidenceAttached, networkState }) {
+const IPFS_GATEWAY = 'https://ipfs.io';
+
+export default function AttachEvidence({ declaration: propDeclaration, recordId, onNavigate, onEvidenceAttached, networkState }) {
   const [evidence, setEvidence] = useState({
     items: [
       { id: 'evidence-1', conditionIds: [], label: '', uri: '' },
     ],
   });
 
+  const [declaration, setDeclaration] = useState(propDeclaration || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // Load declaration from contract if not provided via props
+  useEffect(() => {
+    if (!declaration && recordId !== null && recordId !== undefined) {
+      loadDeclarationFromContract();
+    }
+  }, [recordId, declaration]);
+
+  const loadDeclarationFromContract = async () => {
+    try {
+      setLoading(true);
+      const record = await getRecord(recordId);
+
+      if (!record.declarationURI) {
+        throw new Error('No declaration URI in record');
+      }
+
+      const decl = await fetchManifest(record.declarationURI, IPFS_GATEWAY);
+
+      // Verify integrity
+      const computedHash = hashManifest(decl);
+      if (computedHash !== record.declarationHash) {
+        throw new Error(
+          `Declaration hash mismatch: computed ${computedHash} !== stored ${record.declarationHash}`
+        );
+      }
+
+      setDeclaration(decl);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddItem = () => {
     const newItem = {
