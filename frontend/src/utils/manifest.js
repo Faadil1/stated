@@ -50,12 +50,15 @@ export async function fetchManifest(uri, gatewayURL = 'https://ipfs.io') {
 
   // Convert ipfs:// to gateway URL
   if (uri.startsWith('ipfs://')) {
-    const cid = uri.replace('ipfs://', '').split('/')[0];
+    const withoutProtocol = uri.replace('ipfs://', '');
+    const parts = withoutProtocol.split('/');
+    const cid = parts[0];
+
     fetchURL = `${gatewayURL}/ipfs/${cid}`;
 
     // Handle versioned URIs like ipfs://cid/manifest.json
-    if (uri.includes('/')) {
-      const path = uri.split('/').slice(1).join('/');
+    if (parts.length > 1) {
+      const path = parts.slice(1).join('/');
       fetchURL = `${gatewayURL}/ipfs/${cid}/${path}`;
     }
   }

@@ -5,8 +5,9 @@
       "memory": 512
     }
   },
-  "buildCommand": "npm install && npm ci --prefix frontend",
+  "buildCommand": "npm ci && npm ci --prefix frontend && npm run build --prefix frontend",
   "outputDirectory": "frontend/dist",
+  "installCommand": "npm ci",
   "rewrites": [
     {
       "source": "/api/:path*",

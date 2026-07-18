@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { hashManifest, fetchManifest } from '../frontend/src/utils/manifest';
+import { hashManifest, fetchManifest } from './manifest';
 
 /**
  * Test suite for PublicReceipt functionality
@@ -316,7 +316,10 @@ describe('Public Receipt Architecture', () => {
         };
 
         expect(record.recordId).toBe(id);
-        expect(record.recordId).not.toBe(0); // Not hardcoded to 0
+        // Verify different IDs are handled (not hardcoded to 0)
+        if (id !== 0) {
+          expect(record.recordId).not.toBe(0);
+        }
       });
     });
 
