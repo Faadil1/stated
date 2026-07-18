@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { attachEvidence, getRecord } from '../utils/contract';
+import { attachEvidence, getRecordPublic } from '../utils/contract';
 import { hashManifest, validateEvidence, uploadManifest, fetchManifest } from '../utils/manifest';
 import '../styles/AttachEvidence.css';
 
@@ -27,7 +27,8 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
   const loadDeclarationFromContract = async () => {
     try {
       setLoading(true);
-      const record = await getRecord(recordId);
+      // Use read-only provider for initial load (no wallet required)
+      const record = await getRecordPublic(recordId);
 
       if (!record.declarationURI) {
         throw new Error('No declaration URI in record');

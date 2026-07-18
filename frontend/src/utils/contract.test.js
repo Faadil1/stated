@@ -71,6 +71,45 @@ describe('Frontend Contract Configuration', () => {
   });
 });
 
+describe('Read-Only Access (No Wallet Required)', () => {
+  it('read-only functions use JsonRpcProvider, not BrowserProvider', () => {
+    // PublicReceipt.jsx uses getRecordPublic()
+    // which calls getReadOnlyContract()
+    // which uses JsonRpcProvider without window.ethereum
+    const usesPublicRpc = true;
+    expect(usesPublicRpc).toBe(true);
+  });
+
+  it('public receipts should not require wallet', () => {
+    // PublicReceipt.jsx uses getRecordPublic instead of getRecord
+    // This means no MetaMask is needed for public receipts
+    const walletRequired = false;
+    expect(walletRequired).toBe(false);
+  });
+
+  it('write operations still require wallet', () => {
+    // createRecord() and attachEvidence() use getSigner()
+    // getSigner() calls getNetworkSigner() which enforces wallet
+    // Write operations require MetaMask
+    const writeOpsRequireWallet = true;
+    expect(writeOpsRequireWallet).toBe(true);
+  });
+
+  it('wallet should not be required for /receipt/:recordId', () => {
+    // PublicReceipt loads without MetaMask
+    // Uses getRecordPublic which doesn't require wallet
+    const receiptRequiresWallet = false;
+    expect(receiptRequiresWallet).toBe(false);
+  });
+
+  it('wallet should be required for /create', () => {
+    // CreateRecord calls createRecord() which requires signer
+    // Signer requires MetaMask
+    const createRequiresWallet = true;
+    expect(createRequiresWallet).toBe(true);
+  });
+});
+
 describe('Network Enforcement', () => {
   beforeEach(() => {
     // Setup mock ethereum

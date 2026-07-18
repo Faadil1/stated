@@ -11,6 +11,7 @@ export function useNetwork() {
   const [isMonad, setIsMonad] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [walletAvailable, setWalletAvailable] = useState(false);
 
   // Check current network on mount
   useEffect(() => {
@@ -19,11 +20,15 @@ export function useNetwork() {
         const currentChainId = await getCurrentChainId();
         setChainId(currentChainId);
         setIsMonad(isMonadNetwork(currentChainId));
+        setWalletAvailable(true);
         setError(null);
       } catch (err) {
-        setError(err.message);
+        // No wallet available (MetaMask not installed)
+        // This is not an error for read-only pages
+        setError(null);
         setChainId(null);
         setIsMonad(false);
+        setWalletAvailable(false);
       }
     };
 
@@ -67,6 +72,7 @@ export function useNetwork() {
     isMonad,
     loading,
     error,
+    walletAvailable,
     switchNetwork,
   };
 }

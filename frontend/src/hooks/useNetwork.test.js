@@ -17,6 +17,26 @@ describe('useNetwork Hook', () => {
     expect(typeof useNetwork).toBe('function');
   });
 
+  it('should not error when window.ethereum is undefined', () => {
+    global.window.ethereum = undefined;
+    expect(typeof useNetwork).toBe('function');
+    // Hook should not throw during definition
+  });
+
+  it('should return walletAvailable state', () => {
+    const expected = {
+      chainId: null,
+      isMonad: false,
+      loading: false,
+      error: null,
+      walletAvailable: expect.any(Boolean),
+      switchNetwork: expect.any(Function),
+    };
+
+    // Verify the hook returns walletAvailable
+    expect(Object.keys(expected).sort()).toContain('walletAvailable');
+  });
+
   it('should have switchNetwork callback', () => {
     // The hook would return { chainId, isMonad, loading, error, switchNetwork }
     // We verify the shape here

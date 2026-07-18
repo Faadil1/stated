@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { getNetworkSigner, ensureMonadNetwork, getNetworkProvider } from './network';
+import { getReadOnlyContract } from './readOnly';
 
 // Contract address must be configured via environment variable
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
@@ -83,6 +84,25 @@ export async function getRecord(recordId) {
 export async function getOwnerRecords(address) {
   const provider = await getProvider();
   const contract = await getContract();
+  return contract.getRecordIdsByOwner(address);
+}
+
+/**
+ * Get record without requiring MetaMask
+ * Uses read-only public RPC provider
+ * Safe for public receipt pages
+ */
+export async function getRecordPublic(recordId) {
+  const contract = getReadOnlyContract(CONTRACT_ADDRESS, CONTRACT_ABI);
+  return contract.getBuildRecord(recordId);
+}
+
+/**
+ * Get owner records without requiring MetaMask
+ * Uses read-only public RPC provider
+ */
+export async function getOwnerRecordsPublic(address) {
+  const contract = getReadOnlyContract(CONTRACT_ADDRESS, CONTRACT_ABI);
   return contract.getRecordIdsByOwner(address);
 }
 

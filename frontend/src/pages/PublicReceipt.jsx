@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getRecord } from '../utils/contract';
+import { getRecordPublic } from '../utils/contract';
 import { hashManifest, fetchManifest } from '../utils/manifest';
 import '../styles/PublicReceipt.css';
 
@@ -24,12 +24,12 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
       setLoading(true);
       setError(null);
 
-      if (!recordId && recordId !== 0) {
+      if (recordId === null && recordId !== 0) {
         throw new Error('No record ID provided');
       }
 
-      // Fetch record from blockchain
-      const rec = await getRecord(recordId);
+      // Fetch record from blockchain (no wallet required)
+      const rec = await getRecordPublic(recordId);
       setRecord(rec);
 
       // Fetch declaration from URI
