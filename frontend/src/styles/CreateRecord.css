@@ -1,0 +1,92 @@
+.create-record {
+  flex: 1;
+  padding: var(--spacing);
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: calc(var(--spacing) * 2);
+}
+
+.page-header h1 {
+  font-size: 2em;
+  margin-bottom: calc(var(--spacing) / 2);
+}
+
+.form {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: calc(var(--spacing) * 2);
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: calc(var(--spacing) / 2);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: calc(var(--spacing) / 2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.hint {
+  font-size: 0.9em;
+  opacity: 0.7;
+  margin-bottom: calc(var(--spacing) / 2);
+}
+
+.condition-input {
+  display: flex;
+  gap: var(--spacing);
+  margin-bottom: var(--spacing);
+  align-items: flex-start;
+}
+
+.condition-input label {
+  font-weight: bold;
+  margin-top: 6px;
+  min-width: 20px;
+}
+
+.condition-input input {
+  flex: 1;
+}
+
+.submit-button {
+  display: block;
+  width: 100%;
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+  font-weight: bold;
+  padding: var(--spacing);
+  font-size: 1em;
+}
+
+.back-button {
+  display: block;
+  margin: calc(var(--spacing) * 2) auto 0;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  padding: calc(var(--spacing) / 2) var(--spacing);
+}
+
+.nav-buttons {
+  text-align: center;
+  margin-top: calc(var(--spacing) * 3);
+}

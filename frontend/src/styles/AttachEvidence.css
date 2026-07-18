@@ -1,0 +1,113 @@
+.attach-evidence {
+  flex: 1;
+  padding: var(--spacing);
+}
+
+.declared {
+  margin-bottom: calc(var(--spacing) * 2);
+}
+
+.stated-box {
+  padding: var(--spacing);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.stated-box h3 {
+  margin-bottom: calc(var(--spacing) / 2);
+}
+
+.conditions {
+  margin-top: var(--spacing);
+  padding-top: var(--spacing);
+  border-top: 1px solid var(--color-border);
+}
+
+.conditions .label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: calc(var(--spacing) / 2);
+}
+
+.conditions ul {
+  list-style: none;
+  padding-left: var(--spacing);
+}
+
+.conditions li {
+  margin-bottom: calc(var(--spacing) / 2);
+}
+
+.evidence-item {
+  padding: var(--spacing);
+  margin-bottom: var(--spacing);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.form-subgroup {
+  margin-bottom: var(--spacing);
+}
+
+.form-subgroup label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: calc(var(--spacing) / 2);
+}
+
+.form-subgroup input {
+  width: 100%;
+  padding: calc(var(--spacing) / 2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.condition-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) / 2);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) / 2);
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.add-button {
+  display: block;
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: calc(var(--spacing) / 2) var(--spacing);
+  margin-bottom: calc(var(--spacing) * 2);
+}
+
+.remove-button {
+  background-color: var(--color-error);
+  color: white;
+  padding: calc(var(--spacing) / 2) var(--spacing);
+  font-size: 0.9em;
+  margin-top: var(--spacing);
+}
+
+.submit-button {
+  display: block;
+  width: 100%;
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+  font-weight: bold;
+  padding: var(--spacing);
+  font-size: 1em;
+}

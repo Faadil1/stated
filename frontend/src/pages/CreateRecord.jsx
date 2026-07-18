@@ -1,0 +1,189 @@
+import React, { useState } from 'react';
+import { createRecord, getOwnerRecords } from '../utils/contract';
+import { hashManifest, validateDeclaration } from '../utils/manifest';
+import '../styles/CreateRecord.css';
+
+export default function CreateRecord({ walletAddress, onNavigate, onRecordCreated }) {
+  const [formData, setFormData] = useState({
+    title: '',
+    promise: '',
+    deadline: '',
+    conditions: [
+      { id: 'condition-1', text: '' },
+      { id: 'condition-2', text: '' },
+      { id: 'condition-3', text: '' },
+    ],
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleConditionChange = (index, text) => {
+    const newConditions = [...formData.conditions];
+    newConditions[index].text = text;
+    setFormData({ ...formData, conditions: newConditions });
+  };
+
+  const activeConditions = formData.conditions.filter((c) => c.text.trim());
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (!formData.title.trim()) {
+        throw new Error('Title is required');
+      }
+      if (!formData.promise.trim()) {
+        throw new Error('Promise is required');
+      }
+      if (!formData.deadline) {
+        throw new Error('Deadline is required');
+      }
+      if (activeConditions.length === 0) {
+        throw new Error('At least one condition is required');
+      }
+
+      // Create declaration manifest
+      const deadlineDate = new Date(formData.deadline);
+      const declaration = {
+        schema: 'stated/declaration/v1',
+        project: {
+          title: formData.title,
+          promise: formData.promise,
+        },
+        deadline: deadlineDate.toISOString(),
+        conditions: activeConditions,
+      };
+
+      // Validate
+      validateDeclaration(declaration);
+
+      // Hash
+      const declarationHash = hashManifest(declaration);
+
+      // Prepare deadline as Unix timestamp
+      const deadlineUnix = Math.floor(deadlineDate.getTime() / 1000);
+
+      // Store declaration in localStorage for later
+      const declarationURI = 'ipfs://declaration-' + declarationHash.slice(2);
+      localStorage.setItem(`declaration-${declarationHash}`, JSON.stringify(declaration));
+
+      // Create record
+      const receipt = await createRecord(
+        deadlineUnix,
+        declarationHash,
+        declarationURI
+      );
+
+      // Get record ID from events
+      const recordId = 0; // In a real app, parse from receipt events
+
+      setSuccess(true);
+      onRecordCreated({ recordId, declaration, declarationHash });
+      setTimeout(() => {
+        onNavigate('attach');
+      }, 2000);
+    } catch (err) {
+      setError(err.message);
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div className="create-record">
+      <div className="container">
+        <header className="page-header">
+          <h1>Create a Build Record</h1>
+          <p>What did you promise to build?</p>
+        </header>
+
+        <form onSubmit={handleSubmit} className="form">
+          <div className="form-group">
+            <label htmlFor="title">Project Title</label>
+            <input
+              id="title"
+              type="text"
+              placeholder="My Project"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="promise">Promise (1-2 sentences)</label>
+            <textarea
+              id="promise"
+              placeholder="I will build and ship..."
+              value={formData.promise}
+              onChange={(e) => setFormData({ ...formData, promise: e.target.value })}
+              disabled={loading}
+              rows={3}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="deadline">Deadline</label>
+            <input
+              id="deadline"
+              type="datetime-local"
+              value={formData.deadline}
+              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Conditions of Completion (1-3)</label>
+            <p className="hint">Define what "done" means to you. Be specific.</p>
+            {formData.conditions.map((condition, idx) => (
+              <div key={idx} className="condition-input">
+                <label>{idx + 1}.</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Working prototype deployed"
+                  value={condition.text}
+                  onChange={(e) => handleConditionChange(idx, e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            ))}
+            {activeConditions.length === 0 && (
+              <div className="error-message">At least one condition is required</div>
+            )}
+          </div>
+
+          <div className="warning">
+            <h3>⚠️ This record is permanent</h3>
+            <p>Once you create this record, it cannot be changed. Your declaration will be recorded on the blockchain forever.</p>
+          </div>
+
+          <button
+            type="submit"
+            className="submit-button"
+            disabled={loading || activeConditions.length === 0}
+          >
+            {loading ? 'Creating Record...' : 'Create Record'}
+          </button>
+        </form>
+
+        {success && (
+          <div className="success-message">
+            ✓ Record created! Redirecting to attach evidence...
+          </div>
+        )}
+        {error && <div className="error-message">{error}</div>}
+
+        <nav className="nav-buttons">
+          <button onClick={() => onNavigate('landing')} className="back-button">
+            ← Back to Landing
+          </button>
+        </nav>
+      </div>
+    </div>
+  );
+}
