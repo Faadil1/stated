@@ -4,6 +4,338 @@
   min-height: 100vh;
   background-color: var(--surface-examination);
   padding: var(--space-8);
+}
+
+.landing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--space-12);
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* LEFT HERO PANEL */
+.landing-left {
+  position: sticky;
+  top: var(--space-8);
+}
+
+.hero-panel {
+  background-color: var(--paper-base);
+  border: 3px solid var(--seal-rust);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.hero-headline {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  line-height: 1.2;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--ink-primary);
+  margin: 0;
+}
+
+.serif-normal {
+  font-style: normal;
+}
+
+.hero-subheadline {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--seal-rust);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.hero-description {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+  margin: 0;
+}
+
+.hero-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cta-primary,
+.cta-secondary {
+  padding: var(--space-4) var(--space-6);
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 2px solid var(--seal-rust);
+  cursor: pointer;
+  transition: all var(--motion-normal) var(--motion-ease);
+}
+
+.cta-primary {
+  background-color: var(--paper-base);
+  color: var(--seal-rust);
+}
+
+.cta-primary:hover {
+  background-color: var(--seal-rust);
+  color: var(--paper-base);
+}
+
+.cta-secondary {
+  background-color: var(--paper-secondary);
+  color: var(--ink-primary);
+  border-color: var(--ink-primary);
+}
+
+.cta-secondary:hover:not(:disabled) {
+  background-color: var(--ink-primary);
+  color: var(--paper-base);
+}
+
+.cta-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hero-footer-badge {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(26, 26, 26, 0.1);
+}
+
+.badge-icon {
+  font-size: 12px;
+  color: var(--seal-rust);
+}
+
+.badge-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* RIGHT CONTENT PANELS */
+.landing-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.interaction-flow-panel,
+.truth-panel {
+  background-color: var(--paper-base);
+  border: 2px solid rgba(245, 241, 237, 0.3);
+  padding: var(--space-8);
+}
+
+.panel-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-6) 0;
+  border-bottom: 2px solid var(--seal-rust);
+  padding-bottom: var(--space-4);
+}
+
+/* FLOW STEPS */
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.flow-step {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: rgba(245, 241, 237, 0.3);
+  border-left: 3px solid var(--seal-rust);
+}
+
+.flow-step-number {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--seal-rust);
+  line-height: 1;
+}
+
+.flow-step-title {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin: 0;
+}
+
+.flow-step-desc {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  color: var(--ink-secondary);
+  margin: 2px 0 0 0;
+}
+
+.flow-step-detail {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin: 2px 0 0 0;
+  font-style: italic;
+}
+
+/* TRUTH BOUNDARY */
+.truth-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.truth-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3);
+  background-color: rgba(245, 241, 237, 0.15);
+  border-left: 3px solid;
+}
+
+.truth-item.proves {
+  border-left-color: var(--integrity-success-muted);
+}
+
+.truth-item.disproves {
+  border-left-color: var(--unresolved-accent);
+}
+
+.truth-marker {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.truth-item.proves .truth-marker {
+  color: var(--integrity-success-muted);
+}
+
+.truth-item.disproves .truth-marker {
+  color: var(--unresolved-accent);
+}
+
+.truth-item span:last-child {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-secondary);
+}
+
+.truth-footer {
+  padding-top: var(--space-6);
+  border-top: 2px solid var(--seal-rust);
+  text-align: center;
+}
+
+.truth-seal {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--seal-rust);
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.truth-note {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin: var(--space-2) 0 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ERROR MESSAGE */
+.error-message {
+  margin-top: var(--space-8);
+  padding: var(--space-4);
+  background-color: rgba(158, 69, 69, 0.1);
+  border-left: 3px solid var(--unresolved-accent);
+}
+
+.error-message p {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  color: var(--unresolved-accent);
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .landing-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .landing-left {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing {
+    padding: var(--space-4);
+  }
+
+  .landing-grid {
+    gap: var(--space-6);
+  }
+
+  .hero-headline {
+    font-size: 32px;
+  }
+
+  .hero-subheadline {
+    font-size: 24px;
+  }
+
+  .hero-description {
+    font-size: 13px;
+  }
+
+  .flow-step {
+    grid-template-columns: 24px 1fr;
+  }
+
+  .flow-step-number {
+    font-size: 16px;
+  }
+
+  .panel-title {
+    font-size: 11px;
+  }
+}
+
+.landing {
+  min-height: 100vh;
+  background-color: var(--surface-examination);
+  padding: var(--space-8);
   display: flex;
   align-items: center;
   justify-content: center;

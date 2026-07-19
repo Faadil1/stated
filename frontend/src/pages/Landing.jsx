@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connectWallet, getRecordPublic } from '../utils/contract';
 import { hashManifest, fetchManifest } from '../utils/manifest';
-import FeaturedRecordPreview from '../components/FeaturedRecordPreview';
+import GlobalHeader from '../components/GlobalHeader';
 import '../styles/Landing.css';
 
 const IPFS_GATEWAY = 'https://ipfs.io';
@@ -24,7 +24,6 @@ const DEMO_RECORD = {
   }
 };
 
-// State machine for featured record
 const FEATURED_RECORD_STATE = {
   DEMO: 'DEMO',
   LOADING: 'LOADING',
@@ -37,7 +36,6 @@ export default function Landing({ onNavigate, setWalletAddress }) {
   const [walletError, setWalletError] = useState(null);
   const [featuredRecord, setFeaturedRecord] = useState(DEMO_RECORD);
   const [featuredState, setFeaturedState] = useState(FEATURED_RECORD_STATE.DEMO);
-  const [featuredError, setFeaturedError] = useState(null);
 
   useEffect(() => {
     loadFeaturedRecord();
@@ -45,89 +43,46 @@ export default function Landing({ onNavigate, setWalletAddress }) {
 
   const loadFeaturedRecord = async () => {
     const officialRecordId = import.meta.env.VITE_FEATURED_RECORD_ID;
-
     if (!officialRecordId || officialRecordId.trim() === '') {
-      // No official record configured, use labeled demo
       setFeaturedState(FEATURED_RECORD_STATE.DEMO);
       setFeaturedRecord(DEMO_RECORD);
       return;
     }
-
-    // Official record ID is set, attempt to load
     setFeaturedState(FEATURED_RECORD_STATE.LOADING);
-
     try {
-      // Fetch record from blockchain (public, no wallet required)
       const record = await getRecordPublic(officialRecordId);
-
-      // Fetch declaration from IPFS
-      if (!record.declarationURI) {
-        throw new Error('Record has no declaration URI');
-      }
-
+      if (!record.declarationURI) throw new Error('No declaration URI');
       const declaration = await fetchManifest(record.declarationURI, IPFS_GATEWAY);
-
-      // Validate declaration structure
-      if (!declaration || typeof declaration !== 'object') {
-        throw new Error('Declaration is not a valid object');
-      }
-      if (!declaration.project || !declaration.project.title || !declaration.project.promise) {
-        throw new Error('Declaration missing required fields');
-      }
-
-      // Verify declaration integrity
+      if (!declaration?.project?.title || !declaration?.project?.promise) throw new Error('Invalid declaration');
       const computedDeclHash = hashManifest(declaration);
-      if (computedDeclHash !== record.declarationHash) {
-        throw new Error('Declaration integrity check failed');
-      }
-
-      // Fetch evidence if attached
+      if (computedDeclHash !== record.declarationHash) throw new Error('Hash mismatch');
       let evidenceByCondition = {};
       if (record.evidenceHash !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
-        if (!record.evidenceURI) {
-          throw new Error('Evidence hash present but no evidence URI');
-        }
-
+        if (!record.evidenceURI) throw new Error('No evidence URI');
         const evidence = await fetchManifest(record.evidenceURI, IPFS_GATEWAY);
-
-        // Verify evidence integrity
         const computedEvidHash = hashManifest(evidence);
-        if (computedEvidHash !== record.evidenceHash) {
-          throw new Error('Evidence integrity check failed');
-        }
-
-        // Build evidenceByCondition map
-        if (evidence.evidence && Array.isArray(evidence.evidence)) {
+        if (computedEvidHash !== record.evidenceHash) throw new Error('Evidence hash mismatch');
+        if (evidence.evidence?.length) {
           evidence.evidence.forEach((e) => {
             e.conditionIds.forEach((cId) => {
-              if (!evidenceByCondition[cId]) {
-                evidenceByCondition[cId] = [];
-              }
+              if (!evidenceByCondition[cId]) evidenceByCondition[cId] = [];
               evidenceByCondition[cId].push(e);
             });
           });
         }
       }
-
-      // Build the live record object from fetched data
-      const liveRecord = {
+      setFeaturedRecord({
         recordId: officialRecordId,
         title: declaration.project.title,
         promise: declaration.project.promise,
         conditions: declaration.conditions || [],
         evidenceByCondition
-      };
-
-      // All validations passed, set to LIVE
-      setFeaturedRecord(liveRecord);
+      });
       setFeaturedState(FEATURED_RECORD_STATE.LIVE);
-      setFeaturedError(null);
     } catch (err) {
-      console.error('Failed to load official featured record:', err);
-      // Fetch failed, fall back to labeled demo
+      console.error('Failed to load featured record:', err);
       setFeaturedRecord(DEMO_RECORD);
       setFeaturedState(FEATURED_RECORD_STATE.ERROR);
-      setFeaturedError('The featured public record is temporarily unavailable.');
     }
   };
 
@@ -145,85 +100,112 @@ export default function Landing({ onNavigate, setWalletAddress }) {
   };
 
   const isLive = featuredState === FEATURED_RECORD_STATE.LIVE;
-  const isLoading = featuredState === FEATURED_RECORD_STATE.LOADING;
 
   return (
-    <div className="landing">
-      <div className="landing-surface">
-        {/* HEADLINE */}
-        <section className="headline-section">
-          <h1 className="headline">THE GAP BETWEEN YOUR WORDS AND YOUR WORK</h1>
-          <h2 className="subheadline">MADE PUBLIC</h2>
-        </section>
+    <>
+      <GlobalHeader />
+      <div className="landing">
+        <div className="landing-grid">
+          {/* LEFT HERO PANEL */}
+          <div className="landing-left">
+            <div className="hero-panel">
+              <h1 className="hero-headline">The gap <span className="serif-normal">between</span><br/>your words and<br/>your work.</h1>
+              <p className="hero-subheadline">Made public.</p>
+              <p className="hero-description">Declare your intent. Anchor it on-chain. Attach real evidence. Expose the gap between what was stated and what was shown.</p>
 
-        {/* FEATURED RECORD PREVIEW - THE HERO */}
-        <section className="featured-record-section">
-          {isLoading ? (
-            <div className="featured-loading">
-              <p className="featured-loading-text">Loading featured record...</p>
+              <div className="hero-ctas">
+                <button className="cta-primary" onClick={() => onNavigate('receipt', 2)}>
+                  VIEW LIVE RECEIPT (NO WALLET)
+                </button>
+                <button className="cta-secondary" onClick={handleConnectWallet} disabled={walletLoading}>
+                  {walletLoading ? 'Connecting...' : 'CONNECT WALLET TO START'}
+                </button>
+              </div>
+
+              <div className="hero-footer-badge">
+                <span className="badge-icon">▪</span>
+                <span className="badge-text">Built on Monad Testnet</span>
+              </div>
             </div>
-          ) : (
-            <>
-              <FeaturedRecordPreview
-                record={featuredRecord}
-                isLive={isLive}
-                recordId={isLive ? featuredRecord.recordId : null}
-                onNavigate={onNavigate}
-              />
-              {featuredState === FEATURED_RECORD_STATE.ERROR && featuredError && (
-                <p className="featured-error-note">{featuredError}</p>
-              )}
-            </>
-          )}
-        </section>
-
-        {/* PRIMARY CTA */}
-        <section className="cta-section">
-          <button className="primary-cta" onClick={handleConnectWallet} disabled={walletLoading}>
-            {walletLoading ? 'Connecting...' : 'STATE YOUR OWN'}
-          </button>
-          <p className="cta-note">Connect wallet to begin</p>
-        </section>
-
-        {/* TRUTH BOUNDARY */}
-        <section className="landing-truth-boundary">
-          <div className="boundary-box establishes">
-            <h3 className="boundary-label">STATED DOES</h3>
-            <ul className="boundary-list">
-              <li>Records what you promised</li>
-              <li>Anchors it on-chain with a timestamp</li>
-              <li>Accepts evidence you attach</li>
-              <li>Makes the gap public</li>
-            </ul>
           </div>
 
-          <div className="boundary-divider"></div>
+          {/* RIGHT CONTENT PANEL */}
+          <div className="landing-right">
+            {/* INTERACTION FLOW */}
+            <div className="interaction-flow-panel">
+              <h2 className="panel-title">INTERACTION FLOW — 5 STEPS. ONE TRUTH.</h2>
+              <div className="flow-steps">
+                {[
+                  { num: '1', title: 'DECLARE', desc: 'Write your promise', detail: 'Feels like writing in a notebook.' },
+                  { num: '2', title: 'ANCHOR', desc: 'Lock it on Monad', detail: 'Tactile confirmation. Real on-chain lock.' },
+                  { num: '3', title: 'WAIT', desc: 'Build in the real world', detail: 'Time passes. You build.' },
+                  { num: '4', title: 'ATTACH', desc: 'Add real evidence', detail: 'Map to your conditions.' },
+                  { num: '5', title: 'PUBLISH', desc: 'Make the gap public', detail: 'Anyone can verify. No wallet required.' }
+                ].map((step) => (
+                  <div key={step.num} className="flow-step">
+                    <div className="flow-step-number">{step.num}</div>
+                    <div className="flow-step-content">
+                      <h3 className="flow-step-title">{step.title}</h3>
+                      <p className="flow-step-desc">{step.desc}</p>
+                      <p className="flow-step-detail">{step.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <div className="boundary-box cannot">
-            <h3 className="boundary-label">STATED DOES NOT</h3>
-            <ul className="boundary-list">
-              <li>Verify you completed the work</li>
-              <li>Judge the quality of your work</li>
-              <li>Confirm your evidence is authentic</li>
-              <li>Decide whether you kept your promise</li>
-            </ul>
+            {/* TRUTH BOUNDARY */}
+            <div className="truth-panel">
+              <h2 className="panel-title">WHAT THIS PROVES</h2>
+              <div className="truth-list">
+                <div className="truth-item proves">
+                  <span className="truth-marker">✓</span>
+                  <span>The declaration existed at the recorded on-chain time.</span>
+                </div>
+                <div className="truth-item proves">
+                  <span className="truth-marker">✓</span>
+                  <span>The attached evidence was recorded at the shown time.</span>
+                </div>
+                <div className="truth-item proves">
+                  <span className="truth-marker">✓</span>
+                  <span>The stored manifest still matches its recorded hash.</span>
+                </div>
+              </div>
+
+              <h2 className="panel-title" style={{ marginTop: 'var(--space-6)' }}>WHAT THIS DOES NOT PROVE</h2>
+              <div className="truth-list">
+                <div className="truth-item disproves">
+                  <span className="truth-marker">×</span>
+                  <span>That the work was completed.</span>
+                </div>
+                <div className="truth-item disproves">
+                  <span className="truth-marker">×</span>
+                  <span>That the evidence is truthful.</span>
+                </div>
+                <div className="truth-item disproves">
+                  <span className="truth-marker">×</span>
+                  <span>That the result is high-quality.</span>
+                </div>
+                <div className="truth-item disproves">
+                  <span className="truth-marker">×</span>
+                  <span>That you kept your promise.</span>
+                </div>
+              </div>
+
+              <div className="truth-footer">
+                <p className="truth-seal">THE GAP EXISTS</p>
+                <p className="truth-note">Between intent and evidence.</p>
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
 
-        {/* ERROR DISPLAY */}
         {walletError && (
-          <div className="error-banner">
-            <p className="error-text">{walletError}</p>
+          <div className="error-message">
+            <p>{walletError}</p>
           </div>
         )}
-
-        {/* FOOTER */}
-        <footer className="landing-footer">
-          <p className="footer-text">
-            STATED is a smart contract on Monad that records immutable declarations and evidence.
-          </p>
-        </footer>
       </div>
-    </div>
+    </>
   );
 }
