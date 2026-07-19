@@ -1,10 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connectWallet } from '../utils/contract';
+import FeaturedRecordPreview from '../components/FeaturedRecordPreview';
 import '../styles/Landing.css';
+
+const MOCK_FEATURED_RECORD = {
+  recordId: 1,
+  title: 'Build STATED',
+  promise: 'A tool that makes the gap between promises and delivery impossible to hide.',
+  conditions: [
+    { id: 1, text: 'Smart contract deployed on Monad' },
+    { id: 2, text: 'Declaration anchored immutably on-chain' },
+    { id: 3, text: 'Evidence attachment mechanism working' },
+    { id: 4, text: 'Gap revealed on public receipt' },
+    { id: 5, text: 'Judge remembers it three hours later' }
+  ],
+  evidenceByCondition: {
+    1: ['Contract verified at 0x1234...'],
+    2: ['Timestamp: 2026-07-19'],
+    3: ['Attachment flow implemented'],
+    4: ['Public receipt renders correctly']
+  }
+};
 
 export default function Landing({ onNavigate, setWalletAddress }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [featuredRecord, setFeaturedRecord] = useState(MOCK_FEATURED_RECORD);
+
+  useEffect(() => {
+    // Try to fetch official record (when available)
+    // For now, use mock data
+  }, []);
 
   const handleConnectWallet = async () => {
     setLoading(true);
@@ -26,45 +52,11 @@ export default function Landing({ onNavigate, setWalletAddress }) {
         <section className="headline-section">
           <h1 className="headline">THE GAP BETWEEN YOUR WORDS AND YOUR WORK</h1>
           <h2 className="subheadline">MADE PUBLIC</h2>
-          <p className="headline-description">
-            STATED records what a builder declared before building, anchors that declaration on Monad,
-            allows evidence to be attached later, and exposes the gap between what was stated and what was shown.
-          </p>
         </section>
 
-        {/* FEATURE STEPS */}
-        <section className="feature-steps">
-          <div className="step">
-            <div className="step-number">01</div>
-            <h3 className="step-title">DECLARE BEFORE BUILDING</h3>
-            <p className="step-description">
-              State your project title, promise, deadline, and conditions of completion before you begin work.
-            </p>
-          </div>
-
-          <div className="step">
-            <div className="step-number">02</div>
-            <h3 className="step-title">ANCHOR ON MONAD</h3>
-            <p className="step-description">
-              Your declaration is recorded on-chain with an immutable timestamp. It cannot be rewritten.
-            </p>
-          </div>
-
-          <div className="step">
-            <div className="step-number">03</div>
-            <h3 className="step-title">ATTACH EVIDENCE LATER</h3>
-            <p className="step-description">
-              When finished, attach evidence that shows what you actually delivered against each condition.
-            </p>
-          </div>
-
-          <div className="step">
-            <div className="step-number">04</div>
-            <h3 className="step-title">EXPOSE THE GAP</h3>
-            <p className="step-description">
-              The public receipt shows what was stated, what was shown, and what remains unaccounted for.
-            </p>
-          </div>
+        {/* FEATURED RECORD PREVIEW - THE HERO */}
+        <section className="featured-record-section">
+          <FeaturedRecordPreview record={featuredRecord} />
         </section>
 
         {/* PRIMARY CTA */}
