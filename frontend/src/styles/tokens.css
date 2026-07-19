@@ -1,45 +1,55 @@
-/* STATED Design Tokens — Public Evidence Case File */
+/* STATED Design Tokens — Analog Case File Dashboard */
 
 :root {
-  /* SURFACES */
-  --surface-examination: #0a0a0a;
-  --surface-background: #080808;
-  --surface-overlay: rgba(10, 10, 10, 0.95);
+  /* DARK SURFACES (examination table) */
+  --surface-examination: #12110f;
+  --surface-background: #0d0c0b;
+  --surface-overlay: rgba(18, 17, 15, 0.96);
+  --surface-header: #1a1816;
 
-  /* PAPER */
-  --paper-base: #f5f1ed;
-  --paper-secondary: #eae5e0;
-  --paper-grain: linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.02) 49%, rgba(0,0,0,0.02) 51%, transparent 52%);
+  /* PAPER — warm kraft/cream palette */
+  --paper-base: #e8e0d6;
+  --paper-secondary: #ddd3c7;
+  --paper-tertiary: #d1c5b8;
+  --paper-dark: #b8aa9b;
 
   /* INK */
-  --ink-primary: #1a1a1a;
-  --ink-secondary: #4a4a4a;
-  --ink-muted: #7a7a7a;
+  --ink-primary: #1f1c19;
+  --ink-secondary: #4a433d;
+  --ink-muted: #7a6f66;
+  --ink-light: #f5f1ed;
 
-  /* SEALS AND STATES */
-  --seal-rust: #8b4513;
-  --seal-rust-light: #a0522d;
+  /* SEAL / RUST ACCENT */
+  --seal-rust: #a0522d;
+  --seal-rust-light: #b5653a;
   --seal-rust-muted: #7a3a1a;
+  --seal-ink: #5c2e18;
 
-  --unresolved-accent: #9e4545;
-  --unresolved-muted: #6b3a3a;
+  /* STATE COLORS */
+  --unresolved-accent: #a84444;
+  --unresolved-muted: #7a3a3a;
+  --unresolved-bg: rgba(168, 68, 68, 0.08);
 
   --integrity-success: #4a6b5a;
   --integrity-success-muted: #3a5a4a;
+  --integrity-bg: rgba(74, 107, 90, 0.08);
 
   /* TYPOGRAPHY */
-  --font-serif: 'Georgia', 'Garamond', serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  --font-mono: 'Courier New', 'Monaco', monospace;
+  --font-serif: 'Georgia', 'Garamond', 'Times New Roman', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  --font-mono: 'Courier New', 'Courier', 'Monaco', monospace;
+  --font-hand: 'Brush Script MT', 'Segoe Script', 'Comic Sans MS', cursive;
 
-  --text-size-xs: 12px;
-  --text-size-sm: 14px;
-  --text-size-base: 16px;
+  --text-size-xs: 11px;
+  --text-size-sm: 13px;
+  --text-size-base: 15px;
   --text-size-lg: 18px;
   --text-size-xl: 24px;
   --text-size-2xl: 32px;
+  --text-size-3xl: 48px;
+  --text-size-hero: 56px;
 
-  --text-line-height-tight: 1.3;
+  --text-line-height-tight: 1.25;
   --text-line-height-normal: 1.5;
   --text-line-height-relaxed: 1.7;
 
@@ -48,23 +58,27 @@
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
+  --space-20: 80px;
 
   /* BORDERS */
-  --border-paper-light: 1px solid rgba(26, 26, 26, 0.15);
-  --border-paper-medium: 2px solid rgba(26, 26, 26, 0.25);
-  --border-paper-heavy: 3px solid rgba(26, 26, 26, 0.4);
-  --border-seal: 2px solid var(--seal-rust-muted);
+  --border-paper-light: 1px solid rgba(31, 28, 25, 0.12);
+  --border-paper-medium: 1px solid rgba(31, 28, 25, 0.22);
+  --border-paper-heavy: 2px solid rgba(31, 28, 25, 0.35);
+  --border-seal: 2px solid var(--seal-rust);
   --border-unresolved: 2px dashed var(--unresolved-accent);
 
   /* SHADOWS */
   --shadow-none: none;
-  --shadow-subtle: 0 2px 4px rgba(0, 0, 0, 0.15);
-  --shadow-paper-edge: inset -1px -1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-document: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-subtle: 0 2px 6px rgba(0, 0, 0, 0.2);
+  --shadow-paper: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-document: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --shadow-folder: 0 18px 50px rgba(0, 0, 0, 0.55);
 
   /* MOTION */
   --motion-fast: 150ms;
@@ -73,15 +87,13 @@
   --motion-ease: cubic-bezier(0.4, 0.0, 0.2, 1);
   --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* DOCUMENT EDGE STYLING */
+  /* DOCUMENT / CASE FILE */
   --document-edge-width: 2px;
-  --document-fold-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-
-  /* REGISTRY MARKS */
+  --registry-line-color: rgba(31, 28, 25, 0.2);
   --registry-mark-width: 24px;
-  --registry-line-color: rgba(26, 26, 26, 0.25);
-  --registry-line-width: 1px;
+  --case-file-radius: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

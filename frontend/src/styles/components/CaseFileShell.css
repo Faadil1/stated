@@ -10,27 +10,52 @@
   overflow-x: hidden;
 }
 
-.examination-surface {
+.case-folder {
   width: 100%;
   max-width: 1200px;
-  background-color: var(--surface-examination);
   position: relative;
+  padding-top: var(--space-6);
 }
 
-.case-file-container {
+.folder-tab {
+  position: absolute;
+  top: 0;
+  left: var(--space-8);
+  width: 220px;
+  height: var(--space-6);
+  background-color: var(--paper-dark);
+  border-radius: var(--case-file-radius) var(--case-file-radius) 0 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.folder-tab::after {
+  content: 'CASE FILE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  letter-spacing: 1px;
+}
+
+.case-file-paper {
   background-color: var(--paper-base);
   position: relative;
-  box-shadow: var(--shadow-document);
+  box-shadow: var(--shadow-folder);
   border: var(--document-edge-width) solid var(--ink-primary);
   display: flex;
   flex-direction: column;
+  border-radius: 0 0 var(--case-file-radius) var(--case-file-radius);
 }
 
-/* REGISTRY STRIP (vertical marks along left edge) */
-.case-file-container::before {
+/* Registry strip along left edge */
+.case-file-paper::before {
   content: '';
   position: absolute;
-  left: -16px;
+  left: -14px;
   top: 0;
   bottom: 0;
   width: 4px;
@@ -51,15 +76,20 @@
     padding: var(--space-4);
   }
 
-  .case-file-container::before {
+  .folder-tab {
+    left: var(--space-4);
+    width: 160px;
+  }
+
+  .case-file-paper::before {
     display: none;
   }
 }
 
-/* REDUCE MOTION: Disable all animations */
 @media (prefers-reduced-motion: reduce) {
   .case-file-shell,
-  .case-file-container {
+  .case-folder,
+  .case-file-paper {
     animation: none !important;
   }
 }

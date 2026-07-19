@@ -34,14 +34,11 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
         throw new Error('No record ID provided');
       }
 
-      // Fetch record from blockchain (no wallet required)
       const rec = await getRecordPublic(recordId);
       setRecord(rec);
 
-      // Fetch declaration from URI
       await loadDeclaration(rec);
 
-      // Fetch evidence if attached
       if (rec.evidenceHash !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
         await loadEvidence(rec);
       } else {
@@ -64,7 +61,6 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
 
       const decl = await fetchManifest(rec.declarationURI, IPFS_GATEWAY);
 
-      // Validate structure before proceeding
       if (!decl || typeof decl !== 'object') {
         throw new Error('Declaration is not a valid object');
       }
@@ -73,7 +69,6 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
         throw new Error('Declaration missing required fields: project.title and project.promise');
       }
 
-      // Verify integrity
       const computedHash = hashManifest(decl);
       if (computedHash !== rec.declarationHash) {
         setDeclarationStatus('INTEGRITY_MISMATCH');
@@ -99,7 +94,6 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
 
       const evidence = await fetchManifest(rec.evidenceURI, IPFS_GATEWAY);
 
-      // Verify integrity
       const computedHash = hashManifest(evidence);
       if (computedHash !== rec.evidenceHash) {
         setIntegrityStatus('INTEGRITY_MISMATCH');
@@ -122,7 +116,11 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
     return (
       <>
         <GlobalHeader />
-        <div className="receipt-container"><p>Loading receipt...</p></div>
+        <div className="receipt-loading">
+          <div className="loading-paper">
+            <p>Opening case file...</p>
+          </div>
+        </div>
       </>
     );
   }
@@ -131,32 +129,26 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
     return (
       <>
         <GlobalHeader />
-        <div className="receipt-container">
-          <p className="error">
-            {error || 'Receipt not found'}
-            {declarationStatus === 'MANIFEST_NOT_LOADED' && ' (declaration not found on IPFS)'}
-          </p>
-          <button onClick={() => onNavigate('landing', null)} className="back-button">
-            ← Start Over
-          </button>
+        <div className="receipt-error">
+          <div className="error-paper">
+            <p className="error-text">
+              {error || 'Receipt not found'}
+              {declarationStatus === 'MANIFEST_NOT_LOADED' && ' (declaration not found on IPFS)'}
+            </p>
+            <button onClick={() => onNavigate('landing', null)} className="back-button">
+              ← Start Over
+            </button>
+          </div>
         </div>
       </>
     );
   }
 
-  // Derive states
   const declaredAt = new Date(Number(record.declaredAt) * 1000);
   const deadline = new Date(Number(record.deadline) * 1000);
   const evidenceAttachedAt =
     record.evidenceAttachedAt === 0n ? null : new Date(Number(record.evidenceAttachedAt) * 1000);
 
-  const timingStatus = evidenceAttachedAt
-    ? evidenceAttachedAt <= deadline
-      ? 'ATTACHED_ON_TIME'
-      : 'ATTACHED_LATE'
-    : 'NO_EVIDENCE_ATTACHED';
-
-  // Map evidence to conditions
   const evidenceByCondition = {};
   if (fetchedEvidence && fetchedEvidence.evidence) {
     fetchedEvidence.evidence.forEach((e) => {
@@ -177,32 +169,57 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
     <>
       <GlobalHeader />
       <CaseFileShell>
-        <div className="receipt-header">
-        <div className="header-content">
-          <h1 className="receipt-title">STATED</h1>
-          {recordId !== null && <p className="record-number">Record #{recordId}</p>}
+        <div className="case-file-header">
+          <div className="case-file-title-group">
+            <h1 className="case-file-title">STATED</h1>
+            {recordId !== null && <p className="record-number">Record #{recordId}</p>}
+          </div>
+          <div className="case-file-status">
+            <span className="status-stamp">PUBLIC RECORD</span>
+            {integrityStatus === 'INTEGRITY_MATCH' && (
+              <span className="integrity-badge ink-check">INTEGRITY MATCH</span>
+            )}
+            {evidenceStatus === 'NO_EVIDENCE_ATTACHED' && (
+              <span className="integrity-badge gap-highlight">EVIDENCE PENDING</span>
+            )}
+          </div>
         </div>
-      </div>
 
-      <DeclarationDocument declaration={fetchedDeclaration} sealed={true} status="ANCHORED ON MONAD" />
+        <div className="case-file-tabs">
+          <div className="case-tab active">WHAT WAS STATED</div>
+          <div className="case-tab active">WHAT WAS SHOWN</div>
+          <div className="case-tab">WHAT THIS PROVES</div>
+          <div className="case-tab">WHAT THIS DOES NOT PROVE</div>
+        </div>
 
-      <ConditionEvidenceMap
-        declaration={fetchedDeclaration}
-        evidence={fetchedEvidence?.evidence}
-        evidenceByCondition={evidenceByCondition}
-      />
+        <DeclarationDocument
+          declaration={fetchedDeclaration}
+          sealed={true}
+          status="ANCHORED ON MONAD"
+          declaredAt={declaredAt}
+          deadline={deadline}
+        />
 
-      <TruthBoundary />
+        <ConditionEvidenceMap
+          declaration={fetchedDeclaration}
+          evidence={fetchedEvidence?.evidence}
+          evidenceByCondition={evidenceByCondition}
+        />
 
-      <RegistryMetadata
-        record={{ ...record, recordId }}
-        declarationHash={record.declarationHash}
-        evidenceHash={record.evidenceHash}
-      />
+        <TruthBoundary />
+
+        <RegistryMetadata
+          record={{ ...record, recordId }}
+          declarationHash={record.declarationHash}
+          evidenceHash={record.evidenceHash}
+        />
 
         <nav className="receipt-footer">
           <button onClick={() => onNavigate('landing', null)} className="footer-button">
             ← Return to Landing
+          </button>
+          <button onClick={() => onNavigate('create', null)} className="footer-button secondary">
+            Create New Record
           </button>
         </nav>
       </CaseFileShell>

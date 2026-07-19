@@ -18,7 +18,6 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Load declaration from contract if not provided via props
   useEffect(() => {
     if (!declaration && recordId !== null && recordId !== undefined) {
       loadDeclarationFromContract();
@@ -28,7 +27,6 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
   const loadDeclarationFromContract = async () => {
     try {
       setLoading(true);
-      // Use read-only provider for initial load (no wallet required)
       const record = await getRecordPublic(recordId);
 
       if (!record.declarationURI) {
@@ -37,7 +35,6 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
 
       const decl = await fetchManifest(record.declarationURI, IPFS_GATEWAY);
 
-      // Verify integrity
       const computedHash = hashManifest(decl);
       if (computedHash !== record.declarationHash) {
         throw new Error(
@@ -101,36 +98,27 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
         throw new Error('No declaration found');
       }
 
-      // Validate at least one item
       if (evidence.items.length === 0) {
         throw new Error('Add at least one evidence item');
       }
 
-      // Create evidence manifest
       const manifestData = {
         schema: 'stated/evidence/v1',
         recordId: String(recordId),
         evidence: evidence.items.filter((e) => e.label && e.uri),
       };
 
-      // Validate
       validateEvidence(manifestData, declaration);
 
-      // Hash locally
       const localEvidenceHash = hashManifest(manifestData);
-
-      // Upload to IPFS via server endpoint
-      setError(null);
       const uploadResult = await uploadManifest(manifestData, 'evidence');
 
-      // Verify hash consistency
       if (uploadResult.manifestHash !== localEvidenceHash) {
         throw new Error(
           `Hash mismatch: local ${localEvidenceHash} !== server ${uploadResult.manifestHash}`
         );
       }
 
-      // Attach to contract with real IPFS URI
       await attachEvidence(recordId, localEvidenceHash, uploadResult.uri);
 
       setSuccess(true);
@@ -142,7 +130,7 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
       });
       setTimeout(() => {
         onNavigate('receipt', recordId);
-      }, 2000);
+      }, 2200);
     } catch (err) {
       setError(err.message);
     }
@@ -156,7 +144,7 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
         <GlobalHeader />
         <div className="attach-evidence">
           <div className="container">
-            <p className="error">No declaration found. Create a record first.</p>
+            <p className="error-message">No declaration found. Create a record first.</p>
             <button onClick={() => onNavigate('create', null)} className="back-button">
               ← Create Record
             </button>
@@ -171,140 +159,163 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
       <GlobalHeader />
       <div className="attach-evidence">
         <div className="container">
-        <header className="page-header">
-          <h1>Attach Evidence to Prove Your Promise</h1>
-          <p>Link the proof of your conditions to the public record</p>
-        </header>
+          <header className="page-header">
+            <div className="page-eyebrow">STEP 04 — ATTACH</div>
+            <h1 className="page-title">Clip Evidence to the Case File</h1>
+            <p className="page-subtitle">Link the proof of your conditions to the public record.</p>
+          </header>
 
-        <div className="evidence-layout">
-          <section className="declared">
-            <h2>What You Stated</h2>
-            <div className="stated-box">
-              <h3>{declaration.project.title}</h3>
-              <p>{declaration.project.promise}</p>
-              <div className="conditions">
-                <p className="label">Conditions:</p>
-                <ul>
-                  {declaration.conditions.map((c) => (
-                    <li key={c.id}>{c.text}</li>
-                  ))}
-                </ul>
-              </div>
+          {error && (
+            <div className="error-message">
+              <p>{error}</p>
             </div>
-          </section>
+          )}
 
-          <form onSubmit={handleSubmit} className="form">
-          <div className="form-group">
-            <label>Evidence Items</label>
-            <p className="hint">Each item can be linked to one or more conditions.</p>
+          {!networkState?.isMonad && (
+            <div className="error-message">
+              ⚠️ Switch MetaMask to Monad Testnet before continuing.
+              {networkState?.switchNetwork && (
+                <button
+                  onClick={networkState.switchNetwork}
+                  className="network-switch-button"
+                  disabled={networkState?.loading}
+                >
+                  {networkState?.loading ? 'Switching...' : 'Switch to Monad Testnet'}
+                </button>
+              )}
+            </div>
+          )}
 
-            {evidence.items.map((item, idx) => (
-              <div key={idx} className="evidence-item">
-                <div className="form-subgroup">
-                  <label>Label</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., GitHub repository"
-                    value={item.label}
-                    onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-
-                <div className="form-subgroup">
-                  <label>URL/URI</label>
-                  <input
-                    type="text"
-                    placeholder="https://github.com/user/repo"
-                    value={item.uri}
-                    onChange={(e) => handleItemChange(idx, 'uri', e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-
-                <div className="form-subgroup">
-                  <label>Link to Conditions</label>
-                  <div className="condition-checkboxes">
-                    {declaration.conditions.map((condition) => (
-                      <label key={condition.id} className="checkbox-label">
-                        <input
-                          type="checkbox"
-                          checked={item.conditionIds.includes(condition.id)}
-                          onChange={() => handleConditionToggle(idx, condition.id)}
-                          disabled={loading}
-                        />
-                        {condition.text}
-                      </label>
-                    ))}
+          <div className="evidence-layout">
+            <section className="declared-panel">
+              <div className="panel-tab">WHAT WAS STATED</div>
+              <div className="stated-box">
+                <h3>{declaration.project.title}</h3>
+                <p className="stated-promise">{declaration.project.promise}</p>
+                {declaration.deadline && (
+                  <div className="stated-deadline">
+                    <span className="stated-label">DUE</span>
+                    <span>{new Date(declaration.deadline).toLocaleDateString()}</span>
                   </div>
-                </div>
-
-                {evidence.items.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(idx)}
-                    className="remove-button"
-                    disabled={loading}
-                  >
-                    Remove
-                  </button>
                 )}
+                <div className="conditions">
+                  <p className="label">Conditions of completion</p>
+                  <ol>
+                    {declaration.conditions.map((c, i) => (
+                      <li key={c.id}>
+                        <span className="condition-index">{i + 1}.</span>
+                        {c.text}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
               </div>
-            ))}
-          </div>
+              <div className="stated-seal">🔒 LOCKED ON MONAD</div>
+            </section>
 
-          <button
-            type="button"
-            onClick={handleAddItem}
-            className="add-button"
-            disabled={loading}
-          >
-            + Add Evidence Item
-          </button>
+            <form onSubmit={handleSubmit} className="evidence-form">
+              <div className="form-header">
+                <div className="paper-clip">🖇</div>
+                <h2>EVIDENCE ITEMS</h2>
+                <p className="form-hint">Each item can be linked to one or more conditions.</p>
+              </div>
 
-          <div className="warning">
-            <h3>⚠️ Evidence attaches once</h3>
-            <p>Once attached, your evidence cannot be changed. The hash will be recorded permanently.</p>
-          </div>
+              <div className="evidence-items-stack">
+                {evidence.items.map((item, idx) => (
+                  <div key={idx} className="evidence-card">
+                    <div className="evidence-card-header">
+                      <span className="evidence-card-number">{idx + 1}</span>
+                      {evidence.items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(idx)}
+                          className="remove-button"
+                          disabled={loading}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
 
-          <button
-            type="submit"
-            className="submit-button"
-            disabled={loading || evidence.items.filter((e) => e.label && e.uri).length === 0 || !networkState?.isMonad}
-          >
-            {loading ? 'Attaching Evidence...' : 'Attach Evidence'}
-          </button>
-          </form>
-        </div>
+                    <div className="form-subgroup">
+                      <label>Label</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., GitHub repository"
+                        value={item.label}
+                        onChange={(e) => handleItemChange(idx, 'label', e.target.value)}
+                        disabled={loading}
+                      />
+                    </div>
 
-        {!networkState?.isMonad && (
-          <div className="error-message">
-            ⚠️ Switch MetaMask to Monad Testnet before continuing.
-            {networkState?.switchNetwork && (
+                    <div className="form-subgroup">
+                      <label>URL / URI</label>
+                      <input
+                        type="text"
+                        placeholder="https://github.com/user/repo"
+                        value={item.uri}
+                        onChange={(e) => handleItemChange(idx, 'uri', e.target.value)}
+                        disabled={loading}
+                      />
+                    </div>
+
+                    <div className="form-subgroup">
+                      <label>Link to Conditions</label>
+                      <div className="condition-checkboxes">
+                        {declaration.conditions.map((condition) => (
+                          <label key={condition.id} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={item.conditionIds.includes(condition.id)}
+                              onChange={() => handleConditionToggle(idx, condition.id)}
+                              disabled={loading}
+                            />
+                            <span>{condition.text}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <button
-                onClick={networkState.switchNetwork}
-                className="network-switch-button"
-                disabled={networkState?.loading}
+                type="button"
+                onClick={handleAddItem}
+                className="add-button"
+                disabled={loading}
               >
-                {networkState?.loading ? 'Switching...' : 'Switch to Monad Testnet'}
+                + Add Evidence Item
               </button>
-            )}
-          </div>
-        )}
-        {success && (
-          <div className="success-message">
-            ✓ Evidence attached! Generating receipt...
-          </div>
-        )}
-        {error && <div className="error-message">{error}</div>}
 
-        <nav className="nav-buttons">
-          <button onClick={() => onNavigate('create', null)} className="back-button">
-            ← Back to Create Record
-          </button>
-        </nav>
+              <div className="warning-stamp">
+                <p className="warning-title">EVIDENCE ATTACHES ONCE</p>
+                <p className="warning-text">Once attached, your evidence cannot be changed. The hash will be recorded permanently.</p>
+              </div>
+
+              <button
+                type="submit"
+                className="submit-button tactile-press"
+                disabled={loading || evidence.items.filter((e) => e.label && e.uri).length === 0 || !networkState?.isMonad}
+              >
+                {loading ? 'ATTACHING EVIDENCE...' : 'ATTACH EVIDENCE TO RECORD'}
+              </button>
+            </form>
+          </div>
+
+          {success && (
+            <div className="success-message attach-success">
+              ✓ Evidence attached! Generating receipt...
+            </div>
+          )}
+
+          <nav className="nav-buttons">
+            <button onClick={() => onNavigate('create', null)} className="back-button">
+              ← Back to Create Record
+            </button>
+          </nav>
+        </div>
       </div>
-    </div>
     </>
   );
 }

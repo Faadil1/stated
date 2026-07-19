@@ -2,12 +2,13 @@
 
 .registry-metadata {
   padding: var(--space-8);
-  background-color: var(--paper-secondary);
+  background-color: var(--paper-tertiary);
+  border-top: var(--border-paper-heavy);
   position: relative;
-  border-top: var(--border-paper-light);
 }
 
-.registry-strip {
+.registry-metadata::before {
+  content: '';
   position: absolute;
   left: 0;
   top: 0;
@@ -19,7 +20,7 @@
 .metadata-header {
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
-  border-bottom: var(--border-paper-light);
+  border-bottom: var(--border-paper-heavy);
 }
 
 .metadata-title {
@@ -27,7 +28,7 @@
   font-family: var(--font-mono);
   font-weight: 700;
   letter-spacing: 1px;
-  color: var(--ink-muted);
+  color: var(--ink-primary);
   margin: 0;
   text-transform: uppercase;
 }
@@ -46,7 +47,7 @@
 }
 
 .metadata-label {
-  font-size: var(--text-size-xs);
+  font-size: 10px;
   font-family: var(--font-mono);
   font-weight: 700;
   color: var(--ink-muted);
@@ -55,19 +56,19 @@
 }
 
 .metadata-value {
-  font-size: var(--text-size-sm);
+  font-size: var(--text-size-xs);
   font-family: var(--font-mono);
   color: var(--ink-primary);
   background-color: var(--paper-base);
   padding: var(--space-2) var(--space-3);
-  border: var(--border-paper-light);
+  border: var(--border-paper-medium);
   word-break: break-all;
   overflow-wrap: break-word;
 }
 
 .metadata-value.hash-value,
 .metadata-value.uri-value {
-  font-size: 11px;
+  font-size: 10px;
   user-select: all;
   cursor: copy;
   transition: background-color var(--motion-fast) var(--motion-ease);
@@ -75,7 +76,7 @@
 
 .metadata-value.hash-value:hover,
 .metadata-value.uri-value:hover {
-  background-color: rgba(74, 107, 90, 0.03);
+  background-color: rgba(160, 82, 45, 0.08);
 }
 
 .hash-item,
@@ -85,11 +86,11 @@
 
 .registry-footer {
   padding-top: var(--space-6);
-  border-top: var(--border-paper-light);
+  border-top: var(--border-paper-heavy);
 }
 
 .footer-text {
-  font-size: var(--text-size-xs);
+  font-size: 10px;
   font-family: var(--font-mono);
   color: var(--ink-muted);
   margin: 0;
@@ -111,9 +112,5 @@
   .hash-item,
   .uri-item {
     grid-column: 1;
-  }
-
-  .metadata-value {
-    font-size: 11px;
   }
 }

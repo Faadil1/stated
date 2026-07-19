@@ -3,13 +3,14 @@
 .truth-boundary {
   padding: var(--space-8);
   background-color: var(--paper-secondary);
-  border-top: 3px solid var(--seal-rust-muted);
-  border-bottom: var(--border-paper-light);
+  border-top: var(--border-paper-heavy);
+  border-bottom: var(--border-paper-heavy);
 }
 
 .boundary-header {
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--seal-rust);
 }
 
 .boundary-title {
@@ -23,7 +24,7 @@
 }
 
 .boundary-subtitle {
-  font-size: var(--text-size-sm);
+  font-size: var(--text-size-base);
   font-family: var(--font-serif);
   color: var(--ink-secondary);
   margin: 0;
@@ -41,6 +42,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  padding: var(--space-5);
+  background-color: var(--paper-base);
+  border: var(--border-paper-light);
+}
+
+.boundary-section.establishes {
+  border-left: 3px solid var(--integrity-success-muted);
+}
+
+.boundary-section.cannot-establish {
+  border-left: 3px solid var(--unresolved-accent);
 }
 
 .boundary-section.establishes .section-title {
@@ -55,7 +67,7 @@
   font-size: var(--text-size-xs);
   font-family: var(--font-mono);
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   margin: 0;
   text-transform: uppercase;
 }
@@ -99,7 +111,7 @@
 .boundary-divider {
   width: 1px;
   background-color: var(--ink-muted);
-  opacity: 0.3;
+  opacity: 0.2;
   margin-top: var(--space-3);
   margin-bottom: var(--space-3);
 }
@@ -107,17 +119,27 @@
 .boundary-seal {
   padding: var(--space-6);
   background-color: var(--paper-base);
-  border: var(--border-paper-light);
-  border-left: 3px solid var(--seal-rust-muted);
+  border: 2px solid var(--seal-rust);
+  text-align: center;
+}
+
+.seal-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-size-xl);
+  font-weight: 700;
+  color: var(--seal-rust);
+  margin: 0 0 var(--space-2) 0;
+  letter-spacing: 2px;
 }
 
 .seal-text {
   font-size: var(--text-size-base);
   font-family: var(--font-serif);
-  color: var(--ink-primary);
-  margin: 0;
+  color: var(--ink-secondary);
+  margin: 0 auto;
   line-height: var(--text-line-height-relaxed);
   font-style: italic;
+  max-width: 720px;
 }
 
 @media (max-width: 768px) {
@@ -136,12 +158,7 @@
     margin: var(--space-3) 0;
   }
 
-  .establishing-list li,
-  .cannot-establish-list li {
-    font-size: var(--text-size-sm);
-  }
-
-  .seal-text {
-    font-size: var(--text-size-sm);
+  .seal-title {
+    font-size: var(--text-size-lg);
   }
 }

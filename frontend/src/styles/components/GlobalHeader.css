@@ -1,11 +1,11 @@
 @import '../tokens.css';
 
 .global-header {
-  background-color: var(--surface-examination);
-  border-bottom: 1px solid rgba(245, 241, 237, 0.15);
+  background-color: var(--surface-header);
+  border-bottom: 1px solid rgba(245, 241, 237, 0.08);
   padding: var(--space-4) var(--space-8);
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 220px 1fr 220px;
   gap: var(--space-8);
   align-items: center;
   font-size: var(--text-size-xs);
@@ -27,32 +27,35 @@
 }
 
 .logo-mark {
-  width: 32px;
-  height: 32px;
-  background-color: rgba(245, 241, 237, 0.15);
+  width: 36px;
+  height: 36px;
+  background-color: var(--paper-base);
   border: 2px solid var(--seal-rust);
-  border-radius: 4px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-sans);
-  font-weight: 700;
   color: var(--seal-rust);
-  font-size: 16px;
+  box-shadow: 0 0 0 2px rgba(160, 82, 45, 0.15);
+}
+
+.logo-icon {
+  width: 22px;
+  height: 22px;
 }
 
 .logo-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .logo-wordmark {
-  font-family: var(--font-sans);
-  font-size: var(--text-size-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-size-base);
   font-weight: 700;
-  color: var(--ink-primary);
-  letter-spacing: 1px;
+  color: var(--paper-base);
+  letter-spacing: 2px;
   text-transform: uppercase;
   margin: 0;
 }
@@ -69,17 +72,18 @@
 /* CENTER: Product Statement */
 .header-center {
   text-align: center;
-  border-left: 1px solid rgba(245, 241, 237, 0.1);
-  border-right: 1px solid rgba(245, 241, 237, 0.1);
+  border-left: 1px solid rgba(245, 241, 237, 0.08);
+  border-right: 1px solid rgba(245, 241, 237, 0.08);
   padding: 0 var(--space-6);
 }
 
 .header-statement {
   font-family: var(--font-serif);
   font-size: var(--text-size-sm);
-  color: var(--ink-secondary);
+  color: var(--paper-secondary);
   margin: 0 0 var(--space-3) 0;
   font-style: italic;
+  letter-spacing: 0.3px;
 }
 
 .header-badges {
@@ -90,23 +94,47 @@
 
 .header-badge {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  align-items: flex-start;
+  gap: var(--space-2);
+  text-align: left;
   font-size: 10px;
   line-height: 1.3;
 }
 
 .badge-icon {
-  font-size: 18px;
-  margin-bottom: 2px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--seal-rust);
+  margin-top: 1px;
+}
+
+.badge-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .badge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   color: var(--ink-muted);
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.3px;
+}
+
+.badge-text strong {
+  color: var(--paper-secondary);
+  font-weight: 700;
+  font-size: 9px;
+}
+
+.badge-text span {
+  font-size: 9px;
+  color: var(--ink-muted);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* RIGHT: Theme and Swatches */
@@ -114,7 +142,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-5);
 }
 
 .header-theme {
@@ -126,7 +154,7 @@
 
 .theme-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--ink-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -136,7 +164,7 @@
 .theme-value {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--ink-secondary);
+  color: var(--paper-secondary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -150,6 +178,7 @@
   width: 16px;
   height: 16px;
   border: 1px solid rgba(245, 241, 237, 0.2);
+  border-radius: 2px;
 }
 
 .swatch-cream {
@@ -168,23 +197,19 @@
   background-color: var(--surface-examination);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .global-header {
     grid-template-columns: 1fr;
     gap: var(--space-4);
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-4);
   }
 
   .header-center {
     border-left: none;
     border-right: none;
-    border-top: 1px solid rgba(245, 241, 237, 0.1);
-    border-bottom: 1px solid rgba(245, 241, 237, 0.1);
+    border-top: 1px solid rgba(245, 241, 237, 0.08);
+    border-bottom: 1px solid rgba(245, 241, 237, 0.08);
     padding: var(--space-3) 0;
-  }
-
-  .header-statement {
-    font-size: 11px;
   }
 
   .header-badges {
@@ -194,12 +219,15 @@
 
   .header-badge {
     flex: 1;
-    min-width: 100px;
-    font-size: 9px;
+    min-width: 140px;
   }
 
   .header-right {
-    justify-content: space-between;
+    justify-content: center;
     gap: var(--space-4);
+  }
+
+  .header-left {
+    justify-content: center;
   }
 }

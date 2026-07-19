@@ -19,7 +19,10 @@ export default function ConditionEvidenceMap({ declaration, evidence, evidenceBy
   return (
     <section className={`condition-evidence-map ${isRevealing ? 'revealing' : ''}`}>
       <div className="map-header">
-        <h2 className="map-title">THE GAP REVEALED</h2>
+        <div>
+          <h2 className="map-title">WHAT WAS SHOWN</h2>
+          <p className="map-subtitle">Evidence attached to the public record</p>
+        </div>
         {unaccountedCount > 0 && (
           <p className="map-gap-count">
             {unaccountedCount} condition{unaccountedCount !== 1 ? 's' : ''} unaccounted for
@@ -27,20 +30,42 @@ export default function ConditionEvidenceMap({ declaration, evidence, evidenceBy
         )}
       </div>
 
+      {evidence && evidence.length > 0 && (
+        <div className="evidence-manifest">
+          <h3 className="manifest-title">EVIDENCE MANIFEST</h3>
+          <ul className="manifest-list">
+            {evidence.map((item, index) => (
+              <li key={item.id || index} className="manifest-item">
+                <span className="manifest-index">{index + 1}.</span>
+                <a
+                  href={item.uri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="manifest-link"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="conditions-examination">
-        {declaration.conditions.map((condition) => {
+        {declaration.conditions.map((condition, index) => {
           const hasEvidence = evidenceByCondition && evidenceByCondition[condition.id];
 
           return (
             <div
               key={condition.id}
               className={`condition-row ${hasEvidence ? 'accounted-for' : 'unaccounted-for'}`}
+              style={{ animationDelay: `${index * 80}ms` }}
             >
               <div className="condition-marker">
                 {hasEvidence ? (
-                  <span className="marker-accounted">■</span>
+                  <span className="marker-accounted ink-check">✓</span>
                 ) : (
-                  <span className="marker-unaccounted">○</span>
+                  <span className="marker-unaccounted gap-highlight">○</span>
                 )}
               </div>
 
@@ -51,9 +76,15 @@ export default function ConditionEvidenceMap({ declaration, evidence, evidenceBy
               <div className="evidence-list-inline">
                 {hasEvidence ? (
                   <ul className="evidence-items">
-                    {evidenceByCondition[condition.id].map((evid) => (
-                      <li key={evid.id} className="evidence-item-inline">
-                        <span className="evidence-label">{evid.label}</span>
+                    {evidenceByCondition[condition.id].map((evid, idx) => (
+                      <li key={evid.id || idx} className="evidence-item-inline">
+                        <a
+                          href={evid.uri}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {evid.label}
+                        </a>
                       </li>
                     ))}
                   </ul>

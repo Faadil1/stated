@@ -6,16 +6,21 @@ export default function RegistryMetadata({ record, declarationHash, evidenceHash
     return null;
   }
 
-  const declaredTime = new Date(Number(record.declaredAt) * 1000);
-  const deadlineTime = new Date(Number(record.deadline) * 1000);
-  const evidenceTime = record.evidenceAttachedAt && Number(record.evidenceAttachedAt) > 0
-    ? new Date(Number(record.evidenceAttachedAt) * 1000)
-    : null;
+  const safeDate = (value) => {
+    if (value === undefined || value === null) return null;
+    const num = typeof value === 'bigint' ? Number(value) : Number(value);
+    if (!Number.isFinite(num) || num <= 0) return null;
+    const date = new Date(num * 1000);
+    if (Number.isNaN(date.getTime())) return null;
+    return date;
+  };
+
+  const declaredTime = safeDate(record.declaredAt);
+  const deadlineTime = safeDate(record.deadline);
+  const evidenceTime = safeDate(record.evidenceAttachedAt);
 
   return (
     <section className="registry-metadata">
-      <div className="registry-strip"></div>
-
       <div className="metadata-header">
         <h2 className="metadata-title">ON-CHAIN RECORD</h2>
       </div>
@@ -33,15 +38,19 @@ export default function RegistryMetadata({ record, declarationHash, evidenceHash
           </code>
         </div>
 
-        <div className="metadata-item">
-          <label className="metadata-label">DECLARED</label>
-          <code className="metadata-value">{declaredTime.toISOString()}</code>
-        </div>
+        {declaredTime && (
+          <div className="metadata-item">
+            <label className="metadata-label">DECLARED</label>
+            <code className="metadata-value">{declaredTime.toISOString()}</code>
+          </div>
+        )}
 
-        <div className="metadata-item">
-          <label className="metadata-label">DEADLINE</label>
-          <code className="metadata-value">{deadlineTime.toISOString()}</code>
-        </div>
+        {deadlineTime && (
+          <div className="metadata-item">
+            <label className="metadata-label">DEADLINE</label>
+            <code className="metadata-value">{deadlineTime.toISOString()}</code>
+          </div>
+        )}
 
         {evidenceTime && (
           <div className="metadata-item">

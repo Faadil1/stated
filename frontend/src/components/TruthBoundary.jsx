@@ -5,17 +5,17 @@ export default function TruthBoundary() {
   return (
     <section className="truth-boundary">
       <div className="boundary-header">
-        <h2 className="boundary-title">LIMITS OF THIS RECORD</h2>
+        <h2 className="boundary-title">THE RECEIPT EXPERIENCE — LIKE A CASE FILE</h2>
         <p className="boundary-subtitle">What this case file establishes and what it cannot</p>
       </div>
 
       <div className="boundary-grid">
         <div className="boundary-section establishes">
-          <h3 className="section-title">WHAT THIS RECORD ESTABLISHES</h3>
+          <h3 className="section-title">WHAT THIS PROVES</h3>
           <ul className="establishing-list">
-            <li>The declaration content fetched matches the recorded declaration hash.</li>
-            <li>The declaration was anchored at the displayed on-chain time.</li>
-            <li>The evidence manifest fetched matches the recorded evidence hash.</li>
+            <li>The declaration existed at the recorded on-chain time.</li>
+            <li>The attached evidence was recorded at the shown time.</li>
+            <li>The stored manifest still matches its recorded hash.</li>
             <li>The listed evidence is what the owner chose to attach.</li>
             <li>The displayed conditions are those originally declared.</li>
           </ul>
@@ -24,7 +24,7 @@ export default function TruthBoundary() {
         <div className="boundary-divider"></div>
 
         <div className="boundary-section cannot-establish">
-          <h3 className="section-title">WHAT THIS RECORD CANNOT ESTABLISH</h3>
+          <h3 className="section-title">WHAT THIS DOES NOT PROVE</h3>
           <ul className="cannot-establish-list">
             <li>Whether the builder completed the work.</li>
             <li>Whether the evidence is truthful or authentic.</li>
@@ -36,6 +36,7 @@ export default function TruthBoundary() {
       </div>
 
       <div className="boundary-seal">
+        <p className="seal-title">THE GAP EXISTS</p>
         <p className="seal-text">
           STATED records what was declared and what was shown.
           It does not decide whether you kept your promise.

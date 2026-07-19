@@ -47,7 +47,6 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
         throw new Error('At least one condition is required');
       }
 
-      // Create declaration manifest
       const deadlineDate = new Date(formData.deadline);
       const declaration = {
         schema: 'stated/declaration/v1',
@@ -59,41 +58,31 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
         conditions: activeConditions,
       };
 
-      // Validate
       validateDeclaration(declaration);
 
-      // Hash locally
       const localDeclarationHash = hashManifest(declaration);
-
-      // Upload to IPFS via server endpoint
-      setError(null);
       const uploadResult = await uploadManifest(declaration, 'declaration');
 
-      // Verify hash consistency
       if (uploadResult.manifestHash !== localDeclarationHash) {
         throw new Error(
           `Hash mismatch: local ${localDeclarationHash} !== server ${uploadResult.manifestHash}`
         );
       }
 
-      // Prepare deadline as Unix timestamp
       const deadlineUnix = Math.floor(deadlineDate.getTime() / 1000);
 
-      // Create record with real IPFS URI
       const receipt = await createRecord(
         deadlineUnix,
         localDeclarationHash,
         uploadResult.uri
       );
 
-      // Parse record ID from BuildRecordCreated event
       const recordId = extractRecordIdFromReceipt(receipt);
       if (recordId === null) {
         throw new Error('BuildRecordCreated event not found in transaction receipt');
       }
 
       setSuccess(true);
-      // Store receipt data but NOT the manifest (it's on IPFS now)
       onRecordCreated({
         recordId,
         declaration,
@@ -102,7 +91,7 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
       });
       setTimeout(() => {
         onNavigate('attach', recordId);
-      }, 2000);
+      }, 2200);
     } catch (err) {
       setError(err.message);
     }
@@ -117,10 +106,9 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
         <div className="create-record">
           <div className="create-container">
             <div className="anchoring-state">
+              <div className="anchoring-seal seal-stamp">LOCKED</div>
               <p className="anchoring-label">ANCHORED ON MONAD</p>
-              <p style={{ marginTop: 'var(--space-4)', fontFamily: 'var(--font-serif)', color: 'var(--ink-secondary)' }}>
-                Redirecting to evidence...
-              </p>
+              <p className="anchoring-note">Redirecting to evidence...</p>
             </div>
           </div>
         </div>
@@ -134,8 +122,11 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
       <div className="create-record">
         <div className="create-container">
           <div className="create-header">
-            <h1 className="create-title">Write the Record<br/>Before the Work Begins</h1>
-            <p className="create-subtitle">01 — What are you building? 02 — What are you promising? 03 — When is it due? 04 — What will count as done?</p>
+            <div className="create-eyebrow">STEP 01 — DECLARE</div>
+            <h1 className="create-title">Write the Record<br />Before the Work Begins</h1>
+            <p className="create-subtitle">
+              What are you building? What are you promising? When is it due? What will count as done?
+            </p>
           </div>
 
           {error && (
@@ -151,7 +142,7 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
                 <button
                   onClick={networkState.switchNetwork}
                   disabled={networkState?.loading}
-                  style={{ marginTop: 'var(--space-3)', padding: 'var(--space-2) var(--space-4)', cursor: 'pointer' }}
+                  className="network-switch-button"
                 >
                   {networkState?.loading ? 'Switching...' : 'Switch to Monad Testnet'}
                 </button>
@@ -162,8 +153,10 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
           <form onSubmit={handleSubmit} className="create-form">
             {/* Section 01: Title */}
             <div className="form-section">
-              <div className="section-number">01</div>
-              <div className="section-label">What are you building?</div>
+              <div className="section-header">
+                <div className="section-number">01</div>
+                <div className="section-label">What are you building?</div>
+              </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="title">Project Title</label>
                 <input
@@ -180,13 +173,15 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
 
             {/* Section 02: Promise */}
             <div className="form-section">
-              <div className="section-number">02</div>
-              <div className="section-label">What are you promising?</div>
+              <div className="section-header">
+                <div className="section-number">02</div>
+                <div className="section-label">What are you promising?</div>
+              </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="promise">Your Promise (1-2 sentences)</label>
                 <textarea
                   id="promise"
-                  className="form-textarea"
+                  className="form-textarea form-handwriting"
                   placeholder="I will build and ship..."
                   value={formData.promise}
                   onChange={(e) => setFormData({ ...formData, promise: e.target.value })}
@@ -197,13 +192,15 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
 
             {/* Section 03: Deadline */}
             <div className="form-section">
-              <div className="section-number">03</div>
-              <div className="section-label">When is it due?</div>
+              <div className="section-header">
+                <div className="section-number">03</div>
+                <div className="section-label">When is it due?</div>
+              </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="deadline">Deadline</label>
                 <input
                   id="deadline"
-                  className="form-input"
+                  className="form-input form-mono"
                   type="datetime-local"
                   value={formData.deadline}
                   onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
@@ -214,8 +211,10 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
 
             {/* Section 04: Conditions */}
             <div className="form-section">
-              <div className="section-number">04</div>
-              <div className="section-label">What will count as done?</div>
+              <div className="section-header">
+                <div className="section-number">04</div>
+                <div className="section-label">What will count as done?</div>
+              </div>
               <div className="conditions-list">
                 {formData.conditions.map((condition, idx) => (
                   <div key={idx} className="condition-input-group">
@@ -235,7 +234,7 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
 
             {/* Warning Stamp */}
             <div className="warning-stamp">
-              <p className="warning-title">⚠️ PERMANENT RECORD</p>
+              <p className="warning-title">PERMANENT RECORD</p>
               <p className="warning-text">Once anchored, this declaration cannot be rewritten.</p>
             </div>
 
@@ -243,7 +242,7 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
             <div className="form-actions">
               <button
                 type="submit"
-                className="btn-anchor"
+                className="btn-anchor tactile-press"
                 disabled={loading || activeConditions.length === 0 || !networkState?.isMonad}
               >
                 {loading ? 'ANCHORING...' : 'ANCHOR THIS DECLARATION'}

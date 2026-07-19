@@ -1,10 +1,22 @@
 import React from 'react';
 import '../styles/components/DeclarationDocument.css';
 
-export default function DeclarationDocument({ declaration, sealed = false, status = 'DRAFT' }) {
+export default function DeclarationDocument({ declaration, sealed = false, status = 'DRAFT', declaredAt, deadline }) {
   if (!declaration) {
     return null;
   }
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+  };
 
   return (
     <section className="declaration-document">
@@ -14,45 +26,61 @@ export default function DeclarationDocument({ declaration, sealed = false, statu
         </span>
       </div>
 
-      <div className="document-header">
-        <h2 className="document-title">WHAT WAS STATED</h2>
-      </div>
-
-      <div className="declaration-content">
-        <div className="declaration-field">
-          <h3 className="project-title">{declaration.project?.title || 'Untitled Project'}</h3>
-        </div>
-
-        <div className="declaration-field">
-          <p className="project-promise">{declaration.project?.promise || 'No promise recorded'}</p>
-        </div>
-
-        {declaration.deadline && (
-          <div className="declaration-field">
-            <label className="field-label">DUE</label>
-            <p className="field-value">{new Date(declaration.deadline).toLocaleDateString()}</p>
+      <div className="document-layout">
+        <div className="document-main">
+          <div className="document-header">
+            <h2 className="document-title">WHAT WAS STATED</h2>
           </div>
-        )}
 
-        {declaration.conditions && declaration.conditions.length > 0 && (
-          <div className="declaration-field conditions-group">
-            <label className="field-label">CONDITIONS OF COMPLETION</label>
-            <ol className="conditions-list">
-              {declaration.conditions.map((condition) => (
-                <li key={condition.id} className="condition-item">
-                  <span className="condition-text">{condition.text}</span>
-                </li>
-              ))}
-            </ol>
+          <div className="declaration-content">
+            <div className="declaration-field">
+              <label className="field-label">PROJECT</label>
+              <h3 className="project-title">{declaration.project?.title || 'Untitled Project'}</h3>
+            </div>
+
+            <div className="declaration-field">
+              <label className="field-label">PROMISE</label>
+              <p className="project-promise">{declaration.project?.promise || 'No promise recorded'}</p>
+            </div>
+
+            {declaration.conditions && declaration.conditions.length > 0 && (
+              <div className="declaration-field conditions-group">
+                <label className="field-label">CONDITIONS OF COMPLETION</label>
+                <ol className="conditions-list">
+                  {declaration.conditions.map((condition) => (
+                    <li key={condition.id} className="condition-item">
+                      <span className="condition-text">{condition.text}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      {sealed && (
-        <div className="document-seal">
-          <div className="seal-mark">🔒</div>
         </div>
-      )}
+
+        <div className="document-sidebar">
+          {declaredAt && (
+            <div className="sidebar-field">
+              <label className="sidebar-label">DECLARED</label>
+              <p className="sidebar-value">{formatDate(declaredAt)}</p>
+            </div>
+          )}
+          {deadline && (
+            <div className="sidebar-field">
+              <label className="sidebar-label">DUE</label>
+              <p className="sidebar-value">{formatDate(deadline)}</p>
+            </div>
+          )}
+          {sealed && (
+            <div className="document-seal seal-stamp">
+              <div className="seal-ring">
+                <span className="seal-text">LOCKED</span>
+                <span className="seal-subtext">ON MONAD</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

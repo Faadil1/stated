@@ -31,6 +31,14 @@ const FEATURED_RECORD_STATE = {
   ERROR: 'ERROR'
 };
 
+const FLOW_STEPS = [
+  { num: '1', title: 'DECLARE', desc: 'Write your promise', detail: 'Feels like writing in a notebook.' },
+  { num: '2', title: 'ANCHOR', desc: 'Lock it on Monad', detail: 'Tactile confirmation. Real on-chain lock.' },
+  { num: '3', title: 'WAIT', desc: 'Build in the real world', detail: 'Time passes. You build.' },
+  { num: '4', title: 'ATTACH', desc: 'Add real evidence', detail: 'Map to your conditions.' },
+  { num: '5', title: 'PUBLISH', desc: 'Make the gap public', detail: 'Anyone can verify. No wallet required.' }
+];
+
 export default function Landing({ onNavigate, setWalletAddress }) {
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletError, setWalletError] = useState(null);
@@ -99,8 +107,6 @@ export default function Landing({ onNavigate, setWalletAddress }) {
     setWalletLoading(false);
   };
 
-  const isLive = featuredState === FEATURED_RECORD_STATE.LIVE;
-
   return (
     <>
       <GlobalHeader />
@@ -108,45 +114,105 @@ export default function Landing({ onNavigate, setWalletAddress }) {
         <div className="landing-grid">
           {/* LEFT HERO PANEL */}
           <div className="landing-left">
-            <div className="hero-panel">
-              <h1 className="hero-headline">The gap <span className="serif-normal">between</span><br/>your words and<br/>your work.</h1>
+            <div className="hero-panel fade-in-up">
+              <div className="hero-eyebrow">LANDING PAGE</div>
+              <h1 className="hero-headline">
+                The gap <em className="hero-em">between</em><br />
+                your words and<br />
+                your work.
+              </h1>
               <p className="hero-subheadline">Made public.</p>
-              <p className="hero-description">Declare your intent. Anchor it on-chain. Attach real evidence. Expose the gap between what was stated and what was shown.</p>
+              <p className="hero-description">
+                Declare your intent. Attach real evidence. Lock it on-chain. Show the truth.
+              </p>
 
               <div className="hero-ctas">
-                <button className="cta-primary" onClick={() => onNavigate('receipt', 2)}>
-                  VIEW LIVE RECEIPT (NO WALLET)
+                <button className="cta-primary tactile-press" onClick={() => onNavigate('receipt', 2)}>
+                  View live receipt (no wallet) →
                 </button>
-                <button className="cta-secondary" onClick={handleConnectWallet} disabled={walletLoading}>
-                  {walletLoading ? 'Connecting...' : 'CONNECT WALLET TO START'}
+                <button
+                  className="cta-secondary tactile-press"
+                  onClick={handleConnectWallet}
+                  disabled={walletLoading}
+                >
+                  {walletLoading ? 'Connecting...' : 'Connect wallet to start'}
                 </button>
               </div>
 
               <div className="hero-footer-badge">
-                <span className="badge-icon">▪</span>
+                <span className="badge-dot"></span>
                 <span className="badge-text">Built on Monad Testnet</span>
+              </div>
+            </div>
+
+            {/* Analog interactions panel */}
+            <div className="analog-panel fade-in-up">
+              <h2 className="panel-title">ANALOG INTERACTIONS</h2>
+              <div className="analog-grid">
+                <div className="analog-item">
+                  <div className="analog-icon">✎</div>
+                  <div className="analog-label">WRITE TO DECLARE</div>
+                  <div className="analog-desc">Handwritten feel when typing your promise.</div>
+                </div>
+                <div className="analog-item">
+                  <div className="analog-icon">◉</div>
+                  <div className="analog-label">SEAL TO ANCHOR</div>
+                  <div className="analog-desc">A stamp animation when it's locked on-chain.</div>
+                </div>
+                <div className="analog-item">
+                  <div className="analog-icon">🖇</div>
+                  <div className="analog-label">CLIP EVIDENCE</div>
+                  <div className="analog-desc">Drag & drop feels like adding papers to a folder.</div>
+                </div>
+                <div className="analog-item">
+                  <div className="analog-icon">▣</div>
+                  <div className="analog-label">PUBLISH TO REVEAL</div>
+                  <div className="analog-desc">A folder opens to the public.</div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* RIGHT CONTENT PANEL */}
           <div className="landing-right">
+            {/* RECORD PREVIEW CARD */}
+            <div className="record-preview-card fade-in-up">
+              <div className="record-preview-paper">
+                <div className="record-preview-stamp">
+                  <span>ON-CHAIN ANCHORED</span>
+                </div>
+                <div className="record-preview-header">
+                  <span className="record-preview-label">RECORD #42</span>
+                  <span className="record-preview-status">PUBLIC RECORD</span>
+                </div>
+                <div className="record-preview-body">
+                  <p className="record-preview-declared">Declared</p>
+                  <p className="record-preview-date">May 18, 2026 14:32 UTC</p>
+                  <p className="record-preview-deadline">Deadline: May 20, 2026 09:17 UTC</p>
+                  <div className="record-preview-separator"></div>
+                  <p className="record-preview-promise">
+                    Ship a working onboarding flow for new users.
+                  </p>
+                </div>
+                <div className="record-preview-footer">
+                  <span className="record-preview-match">INTEGRITY MATCH</span>
+                </div>
+              </div>
+              <div className="record-preview-shadow"></div>
+            </div>
+
             {/* INTERACTION FLOW */}
-            <div className="interaction-flow-panel">
+            <div className="interaction-flow-panel fade-in-up">
               <h2 className="panel-title">INTERACTION FLOW — 5 STEPS. ONE TRUTH.</h2>
               <div className="flow-steps">
-                {[
-                  { num: '1', title: 'DECLARE', desc: 'Write your promise', detail: 'Feels like writing in a notebook.' },
-                  { num: '2', title: 'ANCHOR', desc: 'Lock it on Monad', detail: 'Tactile confirmation. Real on-chain lock.' },
-                  { num: '3', title: 'WAIT', desc: 'Build in the real world', detail: 'Time passes. You build.' },
-                  { num: '4', title: 'ATTACH', desc: 'Add real evidence', detail: 'Map to your conditions.' },
-                  { num: '5', title: 'PUBLISH', desc: 'Make the gap public', detail: 'Anyone can verify. No wallet required.' }
-                ].map((step) => (
-                  <div key={step.num} className="flow-step">
+                {FLOW_STEPS.map((step, index) => (
+                  <div key={step.num} className="flow-step lift-hover" style={{ animationDelay: `${index * 80}ms` }}>
                     <div className="flow-step-number">{step.num}</div>
                     <div className="flow-step-content">
-                      <h3 className="flow-step-title">{step.title}</h3>
-                      <p className="flow-step-desc">{step.desc}</p>
+                      <div className="flow-step-header">
+                        <h3 className="flow-step-title">{step.title}</h3>
+                        <span className="flow-step-desc">{step.desc}</span>
+                      </div>
                       <p className="flow-step-detail">{step.detail}</p>
                     </div>
                   </div>
@@ -155,53 +221,72 @@ export default function Landing({ onNavigate, setWalletAddress }) {
             </div>
 
             {/* TRUTH BOUNDARY */}
-            <div className="truth-panel">
-              <h2 className="panel-title">WHAT THIS PROVES</h2>
-              <div className="truth-list">
-                <div className="truth-item proves">
-                  <span className="truth-marker">✓</span>
-                  <span>The declaration existed at the recorded on-chain time.</span>
+            <div className="truth-panel fade-in-up">
+              <h2 className="panel-title">THE RECEIPT EXPERIENCE — LIKE A CASE FILE</h2>
+              <div className="truth-grid">
+                <div className="truth-box proves">
+                  <h3 className="truth-box-title">WHAT THIS PROVES</h3>
+                  <ul className="truth-list">
+                    <li><span className="truth-check">✓</span> The declaration existed at the recorded on-chain time.</li>
+                    <li><span className="truth-check">✓</span> The attached evidence was recorded at the shown time.</li>
+                    <li><span className="truth-check">✓</span> The stored manifest still matches its recorded hash.</li>
+                  </ul>
                 </div>
-                <div className="truth-item proves">
-                  <span className="truth-marker">✓</span>
-                  <span>The attached evidence was recorded at the shown time.</span>
-                </div>
-                <div className="truth-item proves">
-                  <span className="truth-marker">✓</span>
-                  <span>The stored manifest still matches its recorded hash.</span>
-                </div>
-              </div>
-
-              <h2 className="panel-title" style={{ marginTop: 'var(--space-6)' }}>WHAT THIS DOES NOT PROVE</h2>
-              <div className="truth-list">
-                <div className="truth-item disproves">
-                  <span className="truth-marker">×</span>
-                  <span>That the work was completed.</span>
-                </div>
-                <div className="truth-item disproves">
-                  <span className="truth-marker">×</span>
-                  <span>That the evidence is truthful.</span>
-                </div>
-                <div className="truth-item disproves">
-                  <span className="truth-marker">×</span>
-                  <span>That the result is high-quality.</span>
-                </div>
-                <div className="truth-item disproves">
-                  <span className="truth-marker">×</span>
-                  <span>That you kept your promise.</span>
+                <div className="truth-box disproves">
+                  <h3 className="truth-box-title">WHAT THIS DOES NOT PROVE</h3>
+                  <ul className="truth-list">
+                    <li><span className="truth-cross">×</span> That the work was completed.</li>
+                    <li><span className="truth-cross">×</span> That the evidence is truthful.</li>
+                    <li><span className="truth-cross">×</span> That the result is high-quality.</li>
+                    <li><span className="truth-cross">×</span> That you kept your promise.</li>
+                  </ul>
                 </div>
               </div>
-
               <div className="truth-footer">
                 <p className="truth-seal">THE GAP EXISTS</p>
                 <p className="truth-note">Between intent and evidence.</p>
+              </div>
+            </div>
+
+            {/* WHY THIS DIRECTION WORKS */}
+            <div className="why-panel fade-in-up">
+              <h2 className="panel-title">WHY THIS DIRECTION WORKS</h2>
+              <div className="why-grid">
+                <div className="why-item">
+                  <div className="why-icon">✦</div>
+                  <div>
+                    <div className="why-label">Feels real</div>
+                    <div className="why-desc">Not another blockchain app.</div>
+                  </div>
+                </div>
+                <div className="why-item">
+                  <div className="why-icon">✦</div>
+                  <div>
+                    <div className="why-label">Memorable</div>
+                    <div className="why-desc">The metaphor teaches the model instantly.</div>
+                  </div>
+                </div>
+                <div className="why-item">
+                  <div className="why-icon">✦</div>
+                  <div>
+                    <div className="why-label">Honest by design</div>
+                    <div className="why-desc">The limits are part of the UX.</div>
+                  </div>
+                </div>
+                <div className="why-item">
+                  <div className="why-icon">✦</div>
+                  <div>
+                    <div className="why-label">Judges remember it</div>
+                    <div className="why-desc">Three hours later, the gap is still visible.</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {walletError && (
-          <div className="error-message">
+          <div className="error-message landing-error">
             <p>{walletError}</p>
           </div>
         )}
