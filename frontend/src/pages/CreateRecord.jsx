@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { createRecord, getOwnerRecords, extractRecordIdFromReceipt } from '../utils/contract';
+import { createRecord, extractRecordIdFromReceipt } from '../utils/contract';
 import { hashManifest, validateDeclaration, uploadManifest } from '../utils/manifest';
+import GlobalHeader from '../components/GlobalHeader';
 import '../styles/CreateRecord.css';
 
 export default function CreateRecord({ walletAddress, onNavigate, onRecordCreated, networkState }) {
@@ -109,111 +110,156 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
     setLoading(false);
   };
 
+  if (success) {
+    return (
+      <>
+        <GlobalHeader />
+        <div className="create-record">
+          <div className="create-container">
+            <div className="anchoring-state">
+              <p className="anchoring-label">ANCHORED ON MONAD</p>
+              <p style={{ marginTop: 'var(--space-4)', fontFamily: 'var(--font-serif)', color: 'var(--ink-secondary)' }}>
+                Redirecting to evidence...
+              </p>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="create-record">
-      <div className="container">
-        <header className="page-header">
-          <h1>Create a Build Record</h1>
-          <p>What did you promise to build?</p>
-        </header>
-
-        <form onSubmit={handleSubmit} className="form">
-          <div className="form-group">
-            <label htmlFor="title">Project Title</label>
-            <input
-              id="title"
-              type="text"
-              placeholder="My Project"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              disabled={loading}
-            />
+    <>
+      <GlobalHeader />
+      <div className="create-record">
+        <div className="create-container">
+          <div className="create-header">
+            <h1 className="create-title">Write the Record<br/>Before the Work Begins</h1>
+            <p className="create-subtitle">01 — What are you building? 02 — What are you promising? 03 — When is it due? 04 — What will count as done?</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="promise">Promise (1-2 sentences)</label>
-            <textarea
-              id="promise"
-              placeholder="I will build and ship..."
-              value={formData.promise}
-              onChange={(e) => setFormData({ ...formData, promise: e.target.value })}
-              disabled={loading}
-              rows={3}
-            />
-          </div>
+          {error && (
+            <div className="error-message">
+              <p>{error}</p>
+            </div>
+          )}
 
-          <div className="form-group">
-            <label htmlFor="deadline">Deadline</label>
-            <input
-              id="deadline"
-              type="datetime-local"
-              value={formData.deadline}
-              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-              disabled={loading}
-            />
-          </div>
+          {!networkState?.isMonad && (
+            <div className="error-message">
+              <p>⚠️ Switch MetaMask to Monad Testnet before continuing.</p>
+              {networkState?.switchNetwork && (
+                <button
+                  onClick={networkState.switchNetwork}
+                  disabled={networkState?.loading}
+                  style={{ marginTop: 'var(--space-3)', padding: 'var(--space-2) var(--space-4)', cursor: 'pointer' }}
+                >
+                  {networkState?.loading ? 'Switching...' : 'Switch to Monad Testnet'}
+                </button>
+              )}
+            </div>
+          )}
 
-          <div className="form-group">
-            <label>Conditions of Completion (1-3)</label>
-            <p className="hint">Define what "done" means to you. Be specific.</p>
-            {formData.conditions.map((condition, idx) => (
-              <div key={idx} className="condition-input">
-                <label>{idx + 1}.</label>
+          <form onSubmit={handleSubmit} className="create-form">
+            {/* Section 01: Title */}
+            <div className="form-section">
+              <div className="section-number">01</div>
+              <div className="section-label">What are you building?</div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="title">Project Title</label>
                 <input
+                  id="title"
+                  className="form-input"
                   type="text"
-                  placeholder="e.g., Working prototype deployed"
-                  value={condition.text}
-                  onChange={(e) => handleConditionChange(idx, e.target.value)}
+                  placeholder="My Project"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   disabled={loading}
                 />
               </div>
-            ))}
-            {activeConditions.length === 0 && (
-              <div className="error-message">At least one condition is required</div>
-            )}
-          </div>
+            </div>
 
-          <div className="warning">
-            <h3>⚠️ This record is permanent</h3>
-            <p>Once you create this record, it cannot be changed. Your declaration will be recorded on the blockchain forever.</p>
-          </div>
+            {/* Section 02: Promise */}
+            <div className="form-section">
+              <div className="section-number">02</div>
+              <div className="section-label">What are you promising?</div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="promise">Your Promise (1-2 sentences)</label>
+                <textarea
+                  id="promise"
+                  className="form-textarea"
+                  placeholder="I will build and ship..."
+                  value={formData.promise}
+                  onChange={(e) => setFormData({ ...formData, promise: e.target.value })}
+                  disabled={loading}
+                />
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            className="submit-button"
-            disabled={loading || activeConditions.length === 0 || !networkState?.isMonad}
-          >
-            {loading ? 'Creating Record...' : 'Create Record'}
-          </button>
-        </form>
+            {/* Section 03: Deadline */}
+            <div className="form-section">
+              <div className="section-number">03</div>
+              <div className="section-label">When is it due?</div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="deadline">Deadline</label>
+                <input
+                  id="deadline"
+                  className="form-input"
+                  type="datetime-local"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                  disabled={loading}
+                />
+              </div>
+            </div>
 
-        {!networkState?.isMonad && (
-          <div className="error-message">
-            ⚠️ Switch MetaMask to Monad Testnet before continuing.
-            {networkState?.switchNetwork && (
+            {/* Section 04: Conditions */}
+            <div className="form-section">
+              <div className="section-number">04</div>
+              <div className="section-label">What will count as done?</div>
+              <div className="conditions-list">
+                {formData.conditions.map((condition, idx) => (
+                  <div key={idx} className="condition-input-group">
+                    <div className="condition-number">{idx + 1}</div>
+                    <input
+                      className="form-input"
+                      type="text"
+                      placeholder="e.g., Working prototype deployed"
+                      value={condition.text}
+                      onChange={(e) => handleConditionChange(idx, e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Warning Stamp */}
+            <div className="warning-stamp">
+              <p className="warning-title">⚠️ PERMANENT RECORD</p>
+              <p className="warning-text">Once anchored, this declaration cannot be rewritten.</p>
+            </div>
+
+            {/* Actions */}
+            <div className="form-actions">
               <button
-                onClick={networkState.switchNetwork}
-                className="network-switch-button"
-                disabled={networkState?.loading}
+                type="submit"
+                className="btn-anchor"
+                disabled={loading || activeConditions.length === 0 || !networkState?.isMonad}
               >
-                {networkState?.loading ? 'Switching...' : 'Switch to Monad Testnet'}
+                {loading ? 'ANCHORING...' : 'ANCHOR THIS DECLARATION'}
               </button>
-            )}
-          </div>
-        )}
-        {success && (
-          <div className="success-message">
-            ✓ Record created! Redirecting to attach evidence...
-          </div>
-        )}
-        {error && <div className="error-message">{error}</div>}
-
-        <nav className="nav-buttons">
-          <button onClick={() => onNavigate('landing', null)} className="back-button">
-            ← Back to Landing
-          </button>
-        </nav>
+              <button
+                type="button"
+                onClick={() => onNavigate('landing', null)}
+                className="btn-cancel"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
