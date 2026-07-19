@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/components/FeaturedRecordPreview.css';
 
-export default function FeaturedRecordPreview({ record }) {
+export default function FeaturedRecordPreview({ record, isDemo = false }) {
   if (!record) return null;
 
   const accountedConditions = record.conditions?.filter(c =>
@@ -13,11 +13,24 @@ export default function FeaturedRecordPreview({ record }) {
   ) || [];
 
   return (
-    <div className="featured-record-preview">
+    <div className={`featured-record-preview ${isDemo ? 'is-demo' : ''}`}>
+      {isDemo && (
+        <div className="preview-demo-banner">
+          <div className="demo-banner-content">
+            <div className="demo-banner-label">DEMONSTRATION CASE FILE</div>
+            <div className="demo-banner-subtitle">NOT AN ON-CHAIN RECORD</div>
+          </div>
+        </div>
+      )}
+
       <div className="preview-header">
         <div className="preview-meta">
-          <span className="preview-record-id">Record #{record.recordId || '–'}</span>
-          <span className="preview-status">ANCHORED</span>
+          {!isDemo && record.recordId && (
+            <span className="preview-record-id">Record #{record.recordId}</span>
+          )}
+          {!isDemo && (
+            <span className="preview-status">ANCHORED ON-CHAIN</span>
+          )}
         </div>
       </div>
 
@@ -74,7 +87,11 @@ export default function FeaturedRecordPreview({ record }) {
       </div>
 
       <div className="preview-footer">
-        <p className="preview-seal-text">This is the gap STATED reveals.</p>
+        <p className="preview-seal-text">
+          {isDemo
+            ? 'This demonstration shows how STATED reveals the gap.'
+            : 'This is the gap STATED reveals.'}
+        </p>
       </div>
     </div>
   );

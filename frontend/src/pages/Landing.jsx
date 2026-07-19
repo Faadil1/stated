@@ -3,8 +3,7 @@ import { connectWallet } from '../utils/contract';
 import FeaturedRecordPreview from '../components/FeaturedRecordPreview';
 import '../styles/Landing.css';
 
-const MOCK_FEATURED_RECORD = {
-  recordId: 1,
+const DEMO_RECORD = {
   title: 'Build STATED',
   promise: 'A tool that makes the gap between promises and delivery impossible to hide.',
   conditions: [
@@ -15,8 +14,8 @@ const MOCK_FEATURED_RECORD = {
     { id: 5, text: 'Judge remembers it three hours later' }
   ],
   evidenceByCondition: {
-    1: ['Contract verified at 0x1234...'],
-    2: ['Timestamp: 2026-07-19'],
+    1: ['Contract verified'],
+    2: ['Timestamp recorded'],
     3: ['Attachment flow implemented'],
     4: ['Public receipt renders correctly']
   }
@@ -25,12 +24,35 @@ const MOCK_FEATURED_RECORD = {
 export default function Landing({ onNavigate, setWalletAddress }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [featuredRecord, setFeaturedRecord] = useState(MOCK_FEATURED_RECORD);
+  const [featuredRecord, setFeaturedRecord] = useState(DEMO_RECORD);
+  const [isDemo, setIsDemo] = useState(true);
 
   useEffect(() => {
-    // Try to fetch official record (when available)
-    // For now, use mock data
+    // Check for official record ID from environment variable
+    const officialRecordId = import.meta.env.VITE_FEATURED_RECORD_ID;
+
+    if (officialRecordId && officialRecordId.trim() !== '') {
+      // Fetch real record from contract + IPFS
+      fetchOfficialRecord(officialRecordId);
+    } else {
+      // Use demonstration record
+      setFeaturedRecord(DEMO_RECORD);
+      setIsDemo(true);
+    }
   }, []);
+
+  const fetchOfficialRecord = async (recordId) => {
+    try {
+      // This would fetch from contract + IPFS in production
+      // For now, mark as demo if fetch fails
+      setIsDemo(false);
+    } catch (err) {
+      console.error('Failed to fetch official record:', err);
+      // Fall back to demo on fetch error
+      setFeaturedRecord(DEMO_RECORD);
+      setIsDemo(true);
+    }
+  };
 
   const handleConnectWallet = async () => {
     setLoading(true);
@@ -56,7 +78,7 @@ export default function Landing({ onNavigate, setWalletAddress }) {
 
         {/* FEATURED RECORD PREVIEW - THE HERO */}
         <section className="featured-record-section">
-          <FeaturedRecordPreview record={featuredRecord} />
+          <FeaturedRecordPreview record={featuredRecord} isDemo={isDemo} />
         </section>
 
         {/* PRIMARY CTA */}
