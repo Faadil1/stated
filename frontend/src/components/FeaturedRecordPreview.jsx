@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import '../styles/components/FeaturedRecordPreview.css';
 
-export default function FeaturedRecordPreview({ record, isDemo = false }) {
+export default function FeaturedRecordPreview({ record, isLive = false, recordId = null, onNavigate = null }) {
   if (!record) return null;
 
   const accountedConditions = record.conditions?.filter(c =>
@@ -12,9 +12,15 @@ export default function FeaturedRecordPreview({ record, isDemo = false }) {
     !record.evidenceByCondition?.[c.id]?.length
   ) || [];
 
+  const handleOpenRecord = () => {
+    if (isLive && recordId !== null && onNavigate) {
+      onNavigate('receipt', recordId);
+    }
+  };
+
   return (
-    <div className={`featured-record-preview ${isDemo ? 'is-demo' : ''}`}>
-      {isDemo && (
+    <div className={`featured-record-preview ${!isLive ? 'is-demo' : 'is-live'}`}>
+      {!isLive && (
         <div className="preview-demo-banner">
           <div className="demo-banner-content">
             <div className="demo-banner-label">DEMONSTRATION CASE FILE</div>
@@ -25,10 +31,10 @@ export default function FeaturedRecordPreview({ record, isDemo = false }) {
 
       <div className="preview-header">
         <div className="preview-meta">
-          {!isDemo && record.recordId && (
-            <span className="preview-record-id">Record #{record.recordId}</span>
+          {isLive && recordId !== null && (
+            <span className="preview-record-id">Record #{recordId}</span>
           )}
-          {!isDemo && (
+          {isLive && (
             <span className="preview-status">ANCHORED ON-CHAIN</span>
           )}
         </div>
@@ -88,10 +94,19 @@ export default function FeaturedRecordPreview({ record, isDemo = false }) {
 
       <div className="preview-footer">
         <p className="preview-seal-text">
-          {isDemo
-            ? 'This demonstration shows how STATED reveals the gap.'
-            : 'This is the gap STATED reveals.'}
+          {isLive
+            ? 'This is the gap STATED reveals.'
+            : 'This demonstration shows how STATED reveals the gap.'}
         </p>
+        {onNavigate && (
+          <button
+            className={`preview-cta ${isLive ? 'preview-cta-live' : 'preview-cta-demo'}`}
+            onClick={handleOpenRecord}
+            disabled={!isLive}
+          >
+            {isLive ? 'OPEN THE LIVE CASE FILE' : 'PREVIEW HOW THE CASE FILE WORKS'}
+          </button>
+        )}
       </div>
     </div>
   );

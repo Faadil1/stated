@@ -80,6 +80,34 @@
   border-bottom: var(--border-paper-light);
 }
 
+.featured-loading {
+  padding: var(--space-12);
+  text-align: center;
+  background-color: var(--paper-base);
+  border: var(--border-paper-light);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featured-loading-text {
+  font-family: var(--font-serif);
+  color: var(--ink-secondary);
+  margin: 0;
+  font-style: italic;
+}
+
+.featured-error-note {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background-color: rgba(158, 69, 69, 0.05);
+  border-left: 3px solid var(--unresolved-accent);
+  font-family: var(--font-serif);
+  font-size: var(--text-size-sm);
+  color: var(--unresolved-accent);
+}
+
 .cta-section {
   text-align: center;
   padding: var(--space-8) 0;
