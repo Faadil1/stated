@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createRecord, getOwnerRecords } from '../utils/contract';
+import { createRecord, getOwnerRecords, extractRecordIdFromReceipt } from '../utils/contract';
 import { hashManifest, validateDeclaration, uploadManifest } from '../utils/manifest';
 import '../styles/CreateRecord.css';
 
@@ -85,8 +85,11 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
         uploadResult.uri
       );
 
-      // Get record ID from events
-      const recordId = 0; // In a real app, parse from receipt events
+      // Parse record ID from BuildRecordCreated event
+      const recordId = extractRecordIdFromReceipt(receipt);
+      if (recordId === null) {
+        throw new Error('BuildRecordCreated event not found in transaction receipt');
+      }
 
       setSuccess(true);
       // Store receipt data but NOT the manifest (it's on IPFS now)

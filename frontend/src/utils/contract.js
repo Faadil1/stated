@@ -115,3 +115,44 @@ export async function connectWallet() {
   });
   return accounts[0];
 }
+
+/**
+ * Extract recordId from transaction receipt's BuildRecordCreated event
+ * Expects BuildRecordCreated event signature:
+ * event BuildRecordCreated(uint256 indexed recordId, address indexed owner, uint64 declaredAt, uint64 deadline, bytes32 declarationHash, string declarationURI)
+ * @param {Object} receipt - Transaction receipt object
+ * @returns {number|null} Record ID or null if event not found
+ */
+export function extractRecordIdFromReceipt(receipt) {
+  if (!receipt || !receipt.logs || receipt.logs.length === 0) {
+    return null;
+  }
+
+  // BuildRecordCreated event topic (Keccak256 hash of event signature)
+  // This is deterministic and matches the Solidity emit
+  const buildRecordCreatedTopic = ethers.id('BuildRecordCreated(uint256,address,uint64,uint64,bytes32,string)');
+
+  // Parse each log to find BuildRecordCreated event
+  for (const log of receipt.logs) {
+    // Check if this log is from our contract and is the BuildRecordCreated event
+    if (log.address && log.address.toLowerCase() === CONTRACT_ADDRESS.toLowerCase() && log.topics && log.topics[0] === buildRecordCreatedTopic) {
+      try {
+        // Parse the indexed parameters from topics
+        // topics[0] = event signature
+        // topics[1] = recordId (indexed, uint256)
+        // topics[2] = owner (indexed, address)
+        const recordIdTopic = log.topics[1];
+        if (recordIdTopic) {
+          // recordId is encoded as uint256 in the topic, convert from hex
+          const recordId = BigInt(recordIdTopic);
+          return Number(recordId);
+        }
+      } catch (e) {
+        // Failed to parse this log, continue
+        continue;
+      }
+    }
+  }
+
+  return null;
+}

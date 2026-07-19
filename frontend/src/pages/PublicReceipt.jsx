@@ -58,6 +58,15 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
 
       const decl = await fetchManifest(rec.declarationURI, IPFS_GATEWAY);
 
+      // Validate structure before proceeding
+      if (!decl || typeof decl !== 'object') {
+        throw new Error('Declaration is not a valid object');
+      }
+      if (!decl.project || !decl.project.title || !decl.project.promise) {
+        console.error('Invalid declaration structure:', decl);
+        throw new Error('Declaration missing required fields: project.title and project.promise');
+      }
+
       // Verify integrity
       const computedHash = hashManifest(decl);
       if (computedHash !== rec.declarationHash) {
@@ -248,15 +257,15 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
             <section className="integrity-section">
               <h3>Evidence Integrity</h3>
               <div className={`status-badge integrity-status ${integrityStatus.replace(/\s+/g, '-').toLowerCase()}`}>
-                {integrityStatus}
+                {integrityStatus === 'INTEGRITY_MATCH' ? 'MANIFEST INTEGRITY VERIFIED' : integrityStatus}
               </div>
               {integrityStatus !== 'UNKNOWN' && (
                 <div className="integrity-details">
                   <p><strong>Stored hash:</strong> {record.evidenceHash.slice(0, 16)}...</p>
                   <p className="integrity-note">
                     {integrityStatus === 'INTEGRITY_MATCH'
-                      ? 'The evidence manifest fetched from IPFS matches the hash recorded onchain.'
-                      : 'The evidence manifest does NOT match the hash recorded onchain. The evidence may have been modified or is corrupted.'}
+                      ? 'The evidence manifest fetched from IPFS matches the hash recorded on-chain. This does not verify completion, quality, authenticity, or truth.'
+                      : 'The evidence manifest does NOT match the hash recorded on-chain. The evidence may have been modified or is corrupted.'}
                   </p>
                 </div>
               )}

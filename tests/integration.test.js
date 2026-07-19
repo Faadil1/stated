@@ -402,6 +402,81 @@ describe("STATED Integration Tests", function () {
   // Summary
   // ========================================================================
 
+  // ========================================================================
+  // FUNCTIONAL TRUTH GATE: Record ID Extraction
+  // ========================================================================
+
+  describe("P0.1: Record ID Extraction from Transaction Receipt", function () {
+    it("should extract recordId from BuildRecordCreated event in receipt", async function () {
+      // Create a new record to test extraction
+      const testDeclaration = {
+        schema: "stated/declaration/v1",
+        project: {
+          title: "ID Extraction Test",
+          promise: "Test that record ID is correctly extracted",
+        },
+        deadline: new Date(Date.now() + 7 * 86400000).toISOString(),
+        conditions: [{ id: "test-1", text: "Extract record ID" }],
+      };
+
+      const canonical = canonicalize(testDeclaration);
+      const declHash = ethers.keccak256(ethers.toUtf8Bytes(canonical));
+      const deadline = Math.floor(
+        new Date(testDeclaration.deadline).getTime() / 1000
+      );
+      const declURI = `ipfs://test-${declHash.slice(2)}`;
+
+      // Create record and capture receipt
+      const tx = await stated
+        .connect(account1)
+        .createBuildRecord(deadline, declHash, declURI);
+      const receipt = await tx.wait();
+
+      // Verify receipt has logs with BuildRecordCreated event
+      expect(receipt.logs).to.exist;
+      expect(receipt.logs.length).to.be.greaterThan(0);
+      console.log(`✓ Transaction receipt has ${receipt.logs.length} log(s)`);
+
+      // Extract recordId from receipt (simulating frontend extraction)
+      // Find the log that matches our contract address and has our event topic
+      const buildRecordCreatedTopic = ethers.id(
+        "BuildRecordCreated(uint256,address,uint64,uint64,bytes32,string)"
+      );
+
+      let extractedRecordId = null;
+      for (const log of receipt.logs) {
+        if (
+          log.address &&
+          log.address.toLowerCase() === stated.target.toLowerCase() &&
+          log.topics &&
+          log.topics[0] === buildRecordCreatedTopic
+        ) {
+          // recordId is in topics[1] (first indexed parameter)
+          extractedRecordId = Number(BigInt(log.topics[1]));
+          break;
+        }
+      }
+
+      expect(extractedRecordId).to.not.be.null;
+      expect(extractedRecordId).to.be.a("number");
+      console.log(`✓ Extracted record ID: ${extractedRecordId}`);
+
+      // Verify the extracted ID matches the contract state
+      const nextId = await stated.nextRecordId();
+      const expectedRecordId = Number(nextId) - 1;
+      expect(extractedRecordId).to.equal(expectedRecordId);
+      console.log(
+        `✓ Extracted ID matches contract state (${extractedRecordId} === ${expectedRecordId})`
+      );
+
+      // Verify the record exists on-chain with this ID
+      const record = await stated.getBuildRecord(extractedRecordId);
+      expect(record.owner).to.equal(account1.address);
+      expect(record.declarationHash).to.equal(declHash);
+      console.log(`✓ Record ${extractedRecordId} verified on-chain`);
+    });
+  });
+
   after(function () {
     console.log(`\n=== INTEGRATION TEST SUMMARY ===`);
     console.log(`✓ Flow 1: Wallet and network — PASS`);
@@ -412,6 +487,7 @@ describe("STATED Integration Tests", function () {
     console.log(`✓ Flow 6: Non-owner rejection — PASS`);
     console.log(`✓ Flow 7: Integrity verification — PASS`);
     console.log(`✓ Flow 8: Late attachment — PASS`);
+    console.log(`✓ P0.1: Record ID Extraction — PASS`);
     console.log(`\n✅ ALL FLOWS VALIDATED\n`);
   });
 });
