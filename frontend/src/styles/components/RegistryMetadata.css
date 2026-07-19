@@ -1,0 +1,119 @@
+@import '../tokens.css';
+
+.registry-metadata {
+  padding: var(--space-8);
+  background-color: var(--paper-secondary);
+  position: relative;
+  border-top: var(--border-paper-light);
+}
+
+.registry-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--registry-line-color);
+}
+
+.metadata-header {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--border-paper-light);
+}
+
+.metadata-title {
+  font-size: var(--text-size-xs);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--ink-muted);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.metadata-label {
+  font-size: var(--text-size-xs);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metadata-value {
+  font-size: var(--text-size-sm);
+  font-family: var(--font-mono);
+  color: var(--ink-primary);
+  background-color: var(--paper-base);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-paper-light);
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.metadata-value.hash-value,
+.metadata-value.uri-value {
+  font-size: 11px;
+  user-select: all;
+  cursor: copy;
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.metadata-value.hash-value:hover,
+.metadata-value.uri-value:hover {
+  background-color: rgba(74, 107, 90, 0.03);
+}
+
+.hash-item,
+.uri-item {
+  grid-column: 1 / -1;
+}
+
+.registry-footer {
+  padding-top: var(--space-6);
+  border-top: var(--border-paper-light);
+}
+
+.footer-text {
+  font-size: var(--text-size-xs);
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .registry-metadata {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .metadata-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .hash-item,
+  .uri-item {
+    grid-column: 1;
+  }
+
+  .metadata-value {
+    font-size: 11px;
+  }
+}

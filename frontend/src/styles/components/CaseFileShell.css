@@ -1,0 +1,65 @@
+@import '../tokens.css';
+
+.case-file-shell {
+  min-height: 100vh;
+  background-color: var(--surface-examination);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+.examination-surface {
+  width: 100%;
+  max-width: 1200px;
+  background-color: var(--surface-examination);
+  position: relative;
+}
+
+.case-file-container {
+  background-color: var(--paper-base);
+  position: relative;
+  box-shadow: var(--shadow-document);
+  border: var(--document-edge-width) solid var(--ink-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+/* REGISTRY STRIP (vertical marks along left edge) */
+.case-file-container::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      var(--registry-line-color) 0,
+      var(--registry-line-color) 2px,
+      transparent 2px,
+      transparent 12px
+    );
+  background-size: 100% var(--registry-mark-width);
+  background-position: 0 0;
+}
+
+@media (max-width: 768px) {
+  .case-file-shell {
+    padding: var(--space-4);
+  }
+
+  .case-file-container::before {
+    display: none;
+  }
+}
+
+/* REDUCE MOTION: Disable all animations */
+@media (prefers-reduced-motion: reduce) {
+  .case-file-shell,
+  .case-file-container {
+    animation: none !important;
+  }
+}

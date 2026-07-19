@@ -1,0 +1,93 @@
+/* STATED Design Tokens — Public Evidence Case File */
+
+:root {
+  /* SURFACES */
+  --surface-examination: #0a0a0a;
+  --surface-background: #080808;
+  --surface-overlay: rgba(10, 10, 10, 0.95);
+
+  /* PAPER */
+  --paper-base: #f5f1ed;
+  --paper-secondary: #eae5e0;
+  --paper-grain: linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.02) 49%, rgba(0,0,0,0.02) 51%, transparent 52%);
+
+  /* INK */
+  --ink-primary: #1a1a1a;
+  --ink-secondary: #4a4a4a;
+  --ink-muted: #7a7a7a;
+
+  /* SEALS AND STATES */
+  --seal-rust: #8b4513;
+  --seal-rust-light: #a0522d;
+  --seal-rust-muted: #7a3a1a;
+
+  --unresolved-accent: #9e4545;
+  --unresolved-muted: #6b3a3a;
+
+  --integrity-success: #4a6b5a;
+  --integrity-success-muted: #3a5a4a;
+
+  /* TYPOGRAPHY */
+  --font-serif: 'Georgia', 'Garamond', serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  --font-mono: 'Courier New', 'Monaco', monospace;
+
+  --text-size-xs: 12px;
+  --text-size-sm: 14px;
+  --text-size-base: 16px;
+  --text-size-lg: 18px;
+  --text-size-xl: 24px;
+  --text-size-2xl: 32px;
+
+  --text-line-height-tight: 1.3;
+  --text-line-height-normal: 1.5;
+  --text-line-height-relaxed: 1.7;
+
+  /* SPACING */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* BORDERS */
+  --border-paper-light: 1px solid rgba(26, 26, 26, 0.15);
+  --border-paper-medium: 2px solid rgba(26, 26, 26, 0.25);
+  --border-paper-heavy: 3px solid rgba(26, 26, 26, 0.4);
+  --border-seal: 2px solid var(--seal-rust-muted);
+  --border-unresolved: 2px dashed var(--unresolved-accent);
+
+  /* SHADOWS */
+  --shadow-none: none;
+  --shadow-subtle: 0 2px 4px rgba(0, 0, 0, 0.15);
+  --shadow-paper-edge: inset -1px -1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-document: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  /* MOTION */
+  --motion-fast: 150ms;
+  --motion-normal: 300ms;
+  --motion-slow: 500ms;
+  --motion-ease: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* DOCUMENT EDGE STYLING */
+  --document-edge-width: 2px;
+  --document-fold-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+
+  /* REGISTRY MARKS */
+  --registry-mark-width: 24px;
+  --registry-line-color: rgba(26, 26, 26, 0.25);
+  --registry-line-width: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-normal: 0ms;
+    --motion-slow: 0ms;
+  }
+}

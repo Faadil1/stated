@@ -1,222 +1,105 @@
-.public-receipt {
-  flex: 1;
-  padding: var(--spacing);
-}
-
-.receipt-container {
-  max-width: 900px;
-  margin: 0 auto;
-}
+@import './tokens.css';
 
 .receipt-header {
+  padding: var(--space-8);
+  background-color: var(--paper-base);
+  border-bottom: var(--border-paper-medium);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.receipt-title {
+  font-size: var(--text-size-2xl);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.record-number {
+  font-size: var(--text-size-sm);
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.receipt-footer {
+  padding: var(--space-8);
+  background-color: var(--paper-secondary);
+  border-top: var(--border-paper-light);
+  display: flex;
+  justify-content: center;
+}
+
+.footer-button {
+  background-color: var(--paper-base);
+  border: var(--border-paper-medium);
+  color: var(--ink-primary);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-serif);
+  font-size: var(--text-size-base);
+  cursor: pointer;
+  transition: all var(--motion-normal) var(--motion-ease);
+}
+
+.footer-button:hover {
+  background-color: rgba(26, 26, 26, 0.02);
+  border-color: var(--ink-secondary);
+}
+
+.footer-button:active {
+  transform: scale(0.98);
+}
+
+/* Error state */
+.receipt-error {
+  padding: var(--space-8);
+  background-color: var(--paper-base);
+  border: var(--border-unresolved);
+}
+
+.error-message {
+  font-size: var(--text-size-base);
+  font-family: var(--font-serif);
+  color: var(--unresolved-accent);
+  margin: 0 0 var(--space-4) 0;
+}
+
+/* Loading state */
+.receipt-loading {
+  padding: var(--space-8);
   text-align: center;
-  margin-bottom: calc(var(--spacing) * 3);
-  padding-bottom: var(--spacing);
-  border-bottom: 2px solid var(--color-border);
 }
 
-.brand {
-  margin-bottom: var(--spacing);
-}
-
-.brand h1 {
-  font-size: 2.5em;
-  margin-bottom: calc(var(--spacing) / 2);
-}
-
-.record-id {
-  font-family: monospace;
-  opacity: 0.7;
-}
-
-.receipt-content > section {
-  margin-bottom: calc(var(--spacing) * 2);
-}
-
-.stated-section h2,
-.shown-section h2 {
-  font-size: 1.3em;
-  margin-bottom: var(--spacing);
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.stated-box,
-.shown-box {
-  padding: var(--spacing);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius);
-}
-
-.stated-box h3 {
-  font-size: 1.2em;
-  margin-bottom: calc(var(--spacing) / 2);
-}
-
-.promise {
-  font-size: 1.1em;
-  margin-bottom: var(--spacing);
+.loading-text {
+  font-family: var(--font-serif);
+  color: var(--ink-secondary);
   font-style: italic;
 }
 
-.conditions {
-  margin-top: var(--spacing);
-}
-
-.condition {
-  padding: calc(var(--spacing) / 2);
-  margin-bottom: calc(var(--spacing) / 2);
-}
-
-.evidence-list {
-  list-style: none;
-}
-
-.evidence-list li {
-  padding: calc(var(--spacing) / 2);
-  margin-bottom: calc(var(--spacing) / 2);
-}
-
-.evidence-list strong {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.evidence-list a {
-  word-break: break-all;
-  font-size: 0.9em;
-}
-
-.no-evidence {
-  opacity: 0.7;
-  font-style: italic;
-}
-
-.unaccounted-section {
-  background-color: rgba(245, 124, 0, 0.05);
-  padding: var(--spacing);
-  border-left: 4px solid var(--color-warning);
-  border-radius: var(--radius);
-}
-
-.unaccounted-title {
-  margin-bottom: var(--spacing);
-  color: var(--color-warning);
-}
-
-.unaccounted-item {
-  padding: calc(var(--spacing) / 2);
-  margin-bottom: calc(var(--spacing) / 2);
-  border-left: 2px solid var(--color-warning);
-  padding-left: var(--spacing);
-}
-
-.timing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing);
-}
-
-.timing-item {
-  padding: var(--spacing);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-}
-
-.timing-item label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: calc(var(--spacing) / 2);
-}
-
-.status-section {
-  text-align: center;
-  margin: calc(var(--spacing) * 2) 0;
-}
-
-.integrity-section {
-  background-color: rgba(0, 0, 0, 0.02);
-  padding: var(--spacing);
-  border-radius: var(--radius);
-  margin-bottom: var(--spacing);
-}
-
-.integrity-details {
-  margin-top: var(--spacing);
-  padding-top: var(--spacing);
-  border-top: 1px solid var(--color-border);
-  font-size: 0.9em;
-  font-family: monospace;
-}
-
-.integrity-note {
-  margin-top: calc(var(--spacing) / 2);
-  font-family: inherit;
-}
-
-.truth-boundary {
-  background-color: rgba(0, 0, 0, 0.02);
-  padding: var(--spacing);
-  border-radius: var(--radius);
-}
-
-.truth-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing);
-  margin-top: var(--spacing);
-}
-
-.truth-content h4 {
-  margin-bottom: calc(var(--spacing) / 2);
-}
-
-.truth-content ul {
-  list-style: none;
-  padding-left: var(--spacing);
-}
-
-.truth-content li {
-  margin-bottom: calc(var(--spacing) / 2);
-  font-size: 0.95em;
-}
-
-.contract-details {
-  border-top: 2px solid var(--color-border);
-  padding-top: var(--spacing);
-  margin-top: calc(var(--spacing) * 2);
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing);
-  margin-top: var(--spacing);
-}
-
-.detail {
-  padding: var(--spacing);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-}
-
-.detail label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: calc(var(--spacing) / 2);
-}
-
-.detail code {
-  word-break: break-all;
-  font-size: 0.85em;
-}
-
-@media (max-width: 600px) {
-  .truth-content {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .receipt-header {
+    padding: var(--space-6) var(--space-4);
   }
-  
-  .timing-grid {
-    grid-template-columns: 1fr;
+
+  .receipt-title {
+    font-size: var(--text-size-xl);
+  }
+
+  .receipt-footer {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .footer-button {
+    width: 100%;
   }
 }
