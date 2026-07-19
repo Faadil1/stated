@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { attachEvidence, getRecordPublic } from '../utils/contract';
 import { hashManifest, validateEvidence, uploadManifest, fetchManifest } from '../utils/manifest';
+import GlobalHeader from '../components/GlobalHeader';
 import '../styles/AttachEvidence.css';
 
 const IPFS_GATEWAY = 'https://ipfs.io';
@@ -151,42 +152,48 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
 
   if (!declaration) {
     return (
-      <div className="attach-evidence">
-        <div className="container">
-          <p className="error">No declaration found. Create a record first.</p>
-          <button onClick={() => onNavigate('create', null)} className="back-button">
-            ← Create Record
-          </button>
+      <>
+        <GlobalHeader />
+        <div className="attach-evidence">
+          <div className="container">
+            <p className="error">No declaration found. Create a record first.</p>
+            <button onClick={() => onNavigate('create', null)} className="back-button">
+              ← Create Record
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="attach-evidence">
-      <div className="container">
+    <>
+      <GlobalHeader />
+      <div className="attach-evidence">
+        <div className="container">
         <header className="page-header">
-          <h1>Attach Evidence</h1>
-          <p>Link your proof to each condition</p>
+          <h1>Attach Evidence to Prove Your Promise</h1>
+          <p>Link the proof of your conditions to the public record</p>
         </header>
 
-        <section className="declared">
-          <h2>What You Stated</h2>
-          <div className="stated-box">
-            <h3>{declaration.project.title}</h3>
-            <p>{declaration.project.promise}</p>
-            <div className="conditions">
-              <p className="label">Conditions:</p>
-              <ul>
-                {declaration.conditions.map((c) => (
-                  <li key={c.id}>{c.text}</li>
-                ))}
-              </ul>
+        <div className="evidence-layout">
+          <section className="declared">
+            <h2>What You Stated</h2>
+            <div className="stated-box">
+              <h3>{declaration.project.title}</h3>
+              <p>{declaration.project.promise}</p>
+              <div className="conditions">
+                <p className="label">Conditions:</p>
+                <ul>
+                  {declaration.conditions.map((c) => (
+                    <li key={c.id}>{c.text}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <form onSubmit={handleSubmit} className="form">
+          <form onSubmit={handleSubmit} className="form">
           <div className="form-group">
             <label>Evidence Items</label>
             <p className="hint">Each item can be linked to one or more conditions.</p>
@@ -267,7 +274,8 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
           >
             {loading ? 'Attaching Evidence...' : 'Attach Evidence'}
           </button>
-        </form>
+          </form>
+        </div>
 
         {!networkState?.isMonad && (
           <div className="error-message">
@@ -297,5 +305,6 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
         </nav>
       </div>
     </div>
+    </>
   );
 }

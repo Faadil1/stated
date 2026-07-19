@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getRecordPublic } from '../utils/contract';
 import { hashManifest, fetchManifest } from '../utils/manifest';
+import GlobalHeader from '../components/GlobalHeader';
 import CaseFileShell from '../components/CaseFileShell';
 import DeclarationDocument from '../components/DeclarationDocument';
 import ConditionEvidenceMap from '../components/ConditionEvidenceMap';
@@ -118,20 +119,28 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
   };
 
   if (loading) {
-    return <div className="receipt-container"><p>Loading receipt...</p></div>;
+    return (
+      <>
+        <GlobalHeader />
+        <div className="receipt-container"><p>Loading receipt...</p></div>
+      </>
+    );
   }
 
   if (error || !record || !fetchedDeclaration) {
     return (
-      <div className="receipt-container">
-        <p className="error">
-          {error || 'Receipt not found'}
-          {declarationStatus === 'MANIFEST_NOT_LOADED' && ' (declaration not found on IPFS)'}
-        </p>
-        <button onClick={() => onNavigate('landing', null)} className="back-button">
-          ← Start Over
-        </button>
-      </div>
+      <>
+        <GlobalHeader />
+        <div className="receipt-container">
+          <p className="error">
+            {error || 'Receipt not found'}
+            {declarationStatus === 'MANIFEST_NOT_LOADED' && ' (declaration not found on IPFS)'}
+          </p>
+          <button onClick={() => onNavigate('landing', null)} className="back-button">
+            ← Start Over
+          </button>
+        </div>
+      </>
     );
   }
 
@@ -165,8 +174,10 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
   );
 
   return (
-    <CaseFileShell>
-      <div className="receipt-header">
+    <>
+      <GlobalHeader />
+      <CaseFileShell>
+        <div className="receipt-header">
         <div className="header-content">
           <h1 className="receipt-title">STATED</h1>
           {recordId !== null && <p className="record-number">Record #{recordId}</p>}
@@ -189,11 +200,12 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
         evidenceHash={record.evidenceHash}
       />
 
-      <nav className="receipt-footer">
-        <button onClick={() => onNavigate('landing', null)} className="footer-button">
-          ← Return to Landing
-        </button>
-      </nav>
-    </CaseFileShell>
+        <nav className="receipt-footer">
+          <button onClick={() => onNavigate('landing', null)} className="footer-button">
+            ← Return to Landing
+          </button>
+        </nav>
+      </CaseFileShell>
+    </>
   );
 }
