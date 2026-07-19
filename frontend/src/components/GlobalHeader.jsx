@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/components/GlobalHeader.css';
 
-export default function GlobalHeader() {
+export default function GlobalHeader({ mode = 'PUBLIC RECORD' }) {
   return (
     <header className="global-header">
       <div className="header-left">
@@ -62,15 +62,19 @@ export default function GlobalHeader() {
       </div>
 
       <div className="header-right">
-        <div className="header-theme">
-          <span className="theme-label">THEME</span>
-          <span className="theme-value">BuildAnything / Monad</span>
-        </div>
-        <div className="header-swatches">
-          <div className="swatch swatch-cream" title="Cream paper"></div>
-          <div className="swatch swatch-rust" title="Seal rust"></div>
-          <div className="swatch swatch-green" title="Integrity green"></div>
-          <div className="swatch swatch-dark" title="Examination dark"></div>
+        <div className="registry-metadata" aria-label="Registry metadata">
+          <div className="metadata-pair">
+            <span className="metadata-key">Registry</span>
+            <span className="metadata-value">Public</span>
+          </div>
+          <div className="metadata-pair">
+            <span className="metadata-key">Network</span>
+            <span className="metadata-value">Monad Testnet</span>
+          </div>
+          <div className="metadata-pair">
+            <span className="metadata-key">Mode</span>
+            <span className="metadata-value mode-value">{mode}</span>
+          </div>
         </div>
       </div>
     </header>

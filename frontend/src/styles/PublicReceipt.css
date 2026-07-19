@@ -125,12 +125,19 @@
   background-color: var(--paper-tertiary);
   border-top: 2px solid transparent;
   margin-top: -2px;
+  cursor: default;
 }
 
 .case-tab.active {
   color: var(--ink-primary);
   background-color: var(--paper-base);
   border-top-color: var(--seal-rust);
+}
+
+.case-tab.gap-tab {
+  color: var(--unresolved-accent);
+  background-color: var(--unresolved-bg);
+  border-top-color: var(--unresolved-accent);
 }
 
 .receipt-footer {

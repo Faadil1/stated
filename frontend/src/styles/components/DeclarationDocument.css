@@ -104,7 +104,6 @@
 }
 
 .conditions-list {
-  list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
@@ -114,24 +113,27 @@
 
 .condition-item {
   display: flex;
-  gap: var(--space-3);
-  font-size: var(--text-size-base);
-  font-family: var(--font-serif);
-  color: var(--ink-primary);
-  line-height: var(--text-line-height-normal);
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  background-color: rgba(31, 28, 25, 0.03);
+  border-left: 2px solid var(--seal-rust);
 }
 
-.condition-item::before {
-  content: counter(item) '.';
-  counter-increment: item;
-  min-width: 24px;
+.condition-item-label {
   font-family: var(--font-mono);
+  font-size: 9px;
   color: var(--seal-rust);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
   font-weight: 700;
 }
 
 .condition-text {
-  flex: 1;
+  font-size: var(--text-size-base);
+  font-family: var(--font-serif);
+  color: var(--ink-secondary);
+  line-height: var(--text-line-height-normal);
 }
 
 /* SIDEBAR */

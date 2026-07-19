@@ -48,11 +48,12 @@
   padding: var(--space-8);
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-5);
   box-shadow: var(--shadow-document);
   position: relative;
 }
 
+/* Registry strip on left edge */
 .create-form::before {
   content: '';
   position: absolute;
@@ -69,10 +70,24 @@
   );
 }
 
+/* Tape strip at top */
+.create-form::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 24px;
+  background-color: rgba(245, 241, 237, 0.35);
+  border: 1px dashed rgba(31, 28, 25, 0.15);
+  opacity: 0.7;
+}
+
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-5);
   border: var(--border-paper-light);
   background-color: var(--paper-secondary);
@@ -103,6 +118,14 @@
   font-weight: 700;
 }
 
+.section-hint {
+  font-family: var(--font-serif);
+  font-size: var(--text-size-sm);
+  color: var(--ink-muted);
+  margin: 0;
+  font-style: italic;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -111,10 +134,12 @@
 }
 
 .form-label {
-  font-family: var(--font-serif);
-  font-size: var(--text-size-sm);
-  font-weight: 600;
-  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
 .form-input,
@@ -128,6 +153,7 @@
   color: var(--ink-primary);
   transition: border-color var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease);
   width: 100%;
+  min-height: 44px;
 }
 
 .form-input:focus,
@@ -135,7 +161,7 @@
 .form-select:focus {
   outline: none;
   border-color: var(--seal-rust);
-  box-shadow: inset 0 0 0 1px var(--seal-rust);
+  box-shadow: inset 0 0 0 1px var(--seal-rust), 0 0 0 3px rgba(160, 82, 45, 0.15);
 }
 
 .form-textarea {
@@ -177,10 +203,49 @@
   text-align: center;
 }
 
+/* Review section */
+.review-section {
+  background-color: rgba(31, 28, 25, 0.04);
+}
+
+.review-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid rgba(31, 28, 25, 0.08);
+}
+
+.review-row:last-child {
+  border-bottom: none;
+}
+
+.review-key {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.review-value {
+  font-family: var(--font-serif);
+  font-size: var(--text-size-sm);
+  color: var(--ink-secondary);
+  text-align: right;
+}
+
 .form-actions {
   display: flex;
   gap: var(--space-4);
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
   padding-top: var(--space-6);
   border-top: 2px solid var(--seal-rust);
 }
@@ -193,20 +258,24 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  background-color: var(--paper-base);
+  background-color: var(--seal-rust);
   border: 2px solid var(--seal-rust);
-  color: var(--seal-rust);
+  color: var(--paper-base);
   cursor: pointer;
   transition: all var(--motion-normal) var(--motion-ease);
+  min-height: 52px;
 }
 
 .btn-anchor:hover:not(:disabled) {
-  background-color: var(--seal-rust);
-  color: var(--paper-base);
+  background-color: var(--seal-rust-light);
+  border-color: var(--seal-rust-light);
 }
 
 .btn-anchor:disabled {
-  opacity: 0.5;
+  background-color: var(--paper-tertiary);
+  border-color: var(--paper-dark);
+  color: var(--ink-muted);
+  opacity: 0.9;
   cursor: not-allowed;
 }
 
@@ -218,6 +287,7 @@
   border: var(--border-paper-medium);
   color: var(--ink-secondary);
   cursor: pointer;
+  min-height: 52px;
 }
 
 .btn-cancel:hover:not(:disabled) {
@@ -229,9 +299,8 @@
 .warning-stamp {
   padding: var(--space-5);
   background-color: rgba(160, 82, 45, 0.08);
-  border: 2px dashed var(--seal-rust);
-  text-align: center;
-  margin-top: var(--space-2);
+  border-left: 4px solid var(--seal-rust);
+  margin-top: var(--space-1);
 }
 
 .warning-title {
@@ -241,20 +310,73 @@
   color: var(--seal-rust);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin: 0;
+  margin: 0 0 var(--space-2) 0;
 }
 
 .warning-text {
   font-family: var(--font-serif);
   font-size: var(--text-size-sm);
   color: var(--seal-rust-muted);
-  margin: var(--space-2) 0 0 0;
+  margin: 0;
 }
 
-.network-switch-button {
-  margin-top: var(--space-3);
+/* Network notice */
+.network-notice-create {
+  padding: var(--space-4) var(--space-5);
+  background-color: rgba(160, 82, 45, 0.08);
+  border: 1px solid rgba(160, 82, 45, 0.35);
+  margin-bottom: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.network-notice-create .network-notice-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.network-notice-create .network-notice-icon {
+  color: var(--seal-rust);
+  font-size: 14px;
+}
+
+.network-notice-create .network-notice-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-size-xs);
+  font-weight: 700;
+  color: var(--seal-rust);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.network-notice-create .network-notice-text {
+  font-family: var(--font-serif);
+  font-size: var(--text-size-sm);
+  color: var(--seal-rust-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.network-notice-create .network-switch-button {
+  align-self: flex-start;
+  margin-top: var(--space-2);
   padding: var(--space-2) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-size-xs);
+  font-weight: 700;
+  background-color: var(--seal-rust);
+  border: none;
+  color: white;
   cursor: pointer;
+  transition: background-color var(--motion-fast);
+  min-height: 44px;
+}
+
+.network-notice-create .network-switch-button:hover:not(:disabled) {
+  background-color: var(--seal-rust-light);
 }
 
 /* ANCHORING SUCCESS STATE */
@@ -343,7 +465,9 @@
   }
 
   .btn-anchor,
-  .btn-cancel {
+  .btn-cancel,
+  .network-notice-create .network-switch-button {
     width: 100%;
+    text-align: center;
   }
 }

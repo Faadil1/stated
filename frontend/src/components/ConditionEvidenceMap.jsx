@@ -51,6 +51,15 @@ export default function ConditionEvidenceMap({ declaration, evidence, evidenceBy
         </div>
       )}
 
+      {unaccountedCount > 0 && (
+        <div className="gap-signature" role="status">
+          <span className="gap-signature-label">THE GAP</span>
+          <span className="gap-signature-count">
+            {unaccountedCount} condition{unaccountedCount !== 1 ? 's' : ''} without evidence
+          </span>
+        </div>
+      )}
+
       <div className="conditions-examination">
         {declaration.conditions.map((condition, index) => {
           const hasEvidence = evidenceByCondition && evidenceByCondition[condition.id];

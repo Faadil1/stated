@@ -4,7 +4,7 @@ import { hashManifest, validateDeclaration, uploadManifest } from '../utils/mani
 import GlobalHeader from '../components/GlobalHeader';
 import '../styles/CreateRecord.css';
 
-export default function CreateRecord({ walletAddress, onNavigate, onRecordCreated, networkState }) {
+export default function CreateRecord({ walletAddress, onNavigate, onRecordCreated, networkState, mode }) {
   const [formData, setFormData] = useState({
     title: '',
     promise: '',
@@ -102,11 +102,11 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
   if (success) {
     return (
       <>
-        <GlobalHeader />
+        <GlobalHeader mode={mode} />
         <div className="create-record">
           <div className="create-container">
             <div className="anchoring-state">
-              <div className="anchoring-seal seal-stamp">LOCKED</div>
+              <div className="anchoring-seal seal-stamp" aria-hidden="true">LOCKED</div>
               <p className="anchoring-label">ANCHORED ON MONAD</p>
               <p className="anchoring-note">Redirecting to evidence...</p>
             </div>
@@ -118,7 +118,7 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
 
   return (
     <>
-      <GlobalHeader />
+      <GlobalHeader mode={mode} />
       <div className="create-record">
         <div className="create-container">
           <div className="create-header">
@@ -130,14 +130,21 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
           </div>
 
           {error && (
-            <div className="error-message">
+            <div className="error-message" role="alert">
               <p>{error}</p>
             </div>
           )}
 
           {!networkState?.isMonad && (
-            <div className="error-message">
-              <p>⚠️ Switch MetaMask to Monad Testnet before continuing.</p>
+            <div className="network-notice-create" role="status">
+              <div className="network-notice-header">
+                <span className="network-notice-icon" aria-hidden="true">◉</span>
+                <span className="network-notice-title">Network Mismatch</span>
+              </div>
+              <p className="network-notice-text">
+                Declarations are anchored on Monad Testnet.<br />
+                Switch networks before continuing.
+              </p>
               {networkState?.switchNetwork && (
                 <button
                   onClick={networkState.switchNetwork}
@@ -151,11 +158,11 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
           )}
 
           <form onSubmit={handleSubmit} className="create-form">
-            {/* Section 01: Title */}
+            {/* Section 01: Declaration */}
             <div className="form-section">
               <div className="section-header">
                 <div className="section-number">01</div>
-                <div className="section-label">What are you building?</div>
+                <div className="section-label">Declaration</div>
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="title">Project Title</label>
@@ -168,14 +175,6 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   disabled={loading}
                 />
-              </div>
-            </div>
-
-            {/* Section 02: Promise */}
-            <div className="form-section">
-              <div className="section-header">
-                <div className="section-number">02</div>
-                <div className="section-label">What are you promising?</div>
               </div>
               <div className="form-group">
                 <label className="form-label" htmlFor="promise">Your Promise (1-2 sentences)</label>
@@ -190,31 +189,13 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
               </div>
             </div>
 
-            {/* Section 03: Deadline */}
+            {/* Section 02: Conditions */}
             <div className="form-section">
               <div className="section-header">
-                <div className="section-number">03</div>
-                <div className="section-label">When is it due?</div>
+                <div className="section-number">02</div>
+                <div className="section-label">Conditions</div>
               </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="deadline">Deadline</label>
-                <input
-                  id="deadline"
-                  className="form-input form-mono"
-                  type="datetime-local"
-                  value={formData.deadline}
-                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            {/* Section 04: Conditions */}
-            <div className="form-section">
-              <div className="section-header">
-                <div className="section-number">04</div>
-                <div className="section-label">What will count as done?</div>
-              </div>
+              <p className="section-hint">What will count as done?</p>
               <div className="conditions-list">
                 {formData.conditions.map((condition, idx) => (
                   <div key={idx} className="condition-input-group">
@@ -226,14 +207,56 @@ export default function CreateRecord({ walletAddress, onNavigate, onRecordCreate
                       value={condition.text}
                       onChange={(e) => handleConditionChange(idx, e.target.value)}
                       disabled={loading}
+                      aria-label={`Condition ${idx + 1}`}
                     />
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Section 03: Deadline */}
+            <div className="form-section">
+              <div className="section-header">
+                <div className="section-number">03</div>
+                <div className="section-label">Deadline</div>
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="deadline">Due Date</label>
+                <input
+                  id="deadline"
+                  className="form-input form-mono"
+                  type="datetime-local"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* Section 04: Review */}
+            <div className="form-section review-section">
+              <div className="section-header">
+                <div className="section-number">04</div>
+                <div className="section-label">Review</div>
+              </div>
+              <div className="review-summary">
+                <div className="review-row">
+                  <span className="review-key">Declaration</span>
+                  <span className="review-value">{formData.title.trim() || '—'}</span>
+                </div>
+                <div className="review-row">
+                  <span className="review-key">Conditions</span>
+                  <span className="review-value">{activeConditions.length === 0 ? 'None defined' : `${activeConditions.length} defined`}</span>
+                </div>
+                <div className="review-row">
+                  <span className="review-key">Deadline</span>
+                  <span className="review-value">{formData.deadline ? new Date(formData.deadline).toLocaleString() : '—'}</span>
+                </div>
+              </div>
+            </div>
+
             {/* Warning Stamp */}
-            <div className="warning-stamp">
+            <div className="warning-stamp" role="note">
               <p className="warning-title">PERMANENT RECORD</p>
               <p className="warning-text">Once anchored, this declaration cannot be rewritten.</p>
             </div>

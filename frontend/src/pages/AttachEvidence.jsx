@@ -6,23 +6,51 @@ import '../styles/AttachEvidence.css';
 
 const IPFS_GATEWAY = 'https://ipfs.io';
 
-export default function AttachEvidence({ declaration: propDeclaration, recordId, onNavigate, onEvidenceAttached, networkState }) {
+const TX_STATES = {
+  DRAFT: 'DRAFT',
+  READY_TO_ATTACH: 'READY TO ATTACH',
+  PREPARING_MANIFEST: 'PREPARING MANIFEST',
+  AWAITING_WALLET: 'AWAITING WALLET',
+  SUBMITTING_TO_MONAD: 'SUBMITTING TO MONAD',
+  EVIDENCE_ATTACHED: 'EVIDENCE ATTACHED',
+  ERROR: 'ERROR',
+};
+
+function isEmptyOrMalformed(text) {
+  if (text === undefined || text === null) return true;
+  const trimmed = String(text).trim();
+  if (trimmed.length === 0) return true;
+  // punctuation-only or placeholder dots
+  if (/^[.\s]+$/.test(trimmed)) return true;
+  return false;
+}
+
+function formatFieldLabel(content, fallback) {
+  return isEmptyOrMalformed(content) ? fallback : String(content).trim();
+}
+
+export default function AttachEvidence({ declaration: propDeclaration, recordId, onNavigate, onEvidenceAttached, networkState, mode }) {
   const [evidence, setEvidence] = useState({
-    items: [
-      { id: 'evidence-1', conditionIds: [], label: '', uri: '' },
-    ],
+    items: [{ id: 'evidence-1', conditionIds: [], label: '', uri: '' }],
   });
 
   const [declaration, setDeclaration] = useState(propDeclaration || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [txState, setTxState] = useState(TX_STATES.DRAFT);
 
   useEffect(() => {
     if (!declaration && recordId !== null && recordId !== undefined) {
       loadDeclarationFromContract();
     }
   }, [recordId, declaration]);
+
+  useEffect(() => {
+    if (success) {
+      setTxState(TX_STATES.EVIDENCE_ATTACHED);
+    }
+  }, [success]);
 
   const loadDeclarationFromContract = async () => {
     try {
@@ -58,16 +86,12 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
       label: '',
       uri: '',
     };
-    setEvidence({
-      items: [...evidence.items, newItem],
-    });
+    setEvidence({ items: [...evidence.items, newItem] });
   };
 
   const handleRemoveItem = (idx) => {
     if (evidence.items.length > 1) {
-      setEvidence({
-        items: evidence.items.filter((_, i) => i !== idx),
-      });
+      setEvidence({ items: evidence.items.filter((_, i) => i !== idx) });
     }
   };
 
@@ -88,10 +112,36 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
     setEvidence({ items: newItems });
   };
 
+  const validItems = evidence.items.filter((e) => e.label.trim() && e.uri.trim());
+  const hasNetwork = networkState?.isMonad;
+  const hasValidItems = validItems.length > 0;
+  const hasLinkedConditions = validItems.every((item) => item.conditionIds.length > 0);
+
+  const unmetRequirements = [
+    !hasNetwork && 'Switch to Monad Testnet',
+    !hasValidItems && 'Add a valid evidence URL',
+    hasValidItems && !hasLinkedConditions && 'Link every evidence item to at least one condition',
+  ].filter(Boolean);
+
+  const isReadyToAttach = hasNetwork && hasValidItems && hasLinkedConditions && !loading && !success;
+
+  useEffect(() => {
+    if (success) {
+      setTxState(TX_STATES.EVIDENCE_ATTACHED);
+    } else if (loading) {
+      // keep current loading state
+    } else if (isReadyToAttach) {
+      setTxState(TX_STATES.READY_TO_ATTACH);
+    } else {
+      setTxState(TX_STATES.DRAFT);
+    }
+  }, [isReadyToAttach, loading, success]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setTxState(TX_STATES.PREPARING_MANIFEST);
 
     try {
       if (!declaration) {
@@ -105,12 +155,13 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
       const manifestData = {
         schema: 'stated/evidence/v1',
         recordId: String(recordId),
-        evidence: evidence.items.filter((e) => e.label && e.uri),
+        evidence: validItems,
       };
 
       validateEvidence(manifestData, declaration);
 
       const localEvidenceHash = hashManifest(manifestData);
+      setTxState(TX_STATES.AWAITING_WALLET);
       const uploadResult = await uploadManifest(manifestData, 'evidence');
 
       if (uploadResult.manifestHash !== localEvidenceHash) {
@@ -119,6 +170,7 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
         );
       }
 
+      setTxState(TX_STATES.SUBMITTING_TO_MONAD);
       await attachEvidence(recordId, localEvidenceHash, uploadResult.uri);
 
       setSuccess(true);
@@ -133,6 +185,7 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
       }, 2200);
     } catch (err) {
       setError(err.message);
+      setTxState(TX_STATES.ERROR);
     }
 
     setLoading(false);
@@ -141,7 +194,7 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
   if (!declaration) {
     return (
       <>
-        <GlobalHeader />
+        <GlobalHeader mode={mode} />
         <div className="attach-evidence">
           <div className="container">
             <p className="error-message">No declaration found. Create a record first.</p>
@@ -154,9 +207,17 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
     );
   }
 
+  const declarationTitle = formatFieldLabel(
+    declaration.project?.title,
+    'No title recorded'
+  );
+  const declarationText = isEmptyOrMalformed(declaration.project?.promise)
+    ? 'No meaningful declaration text was recorded.'
+    : declaration.project.promise;
+
   return (
     <>
-      <GlobalHeader />
+      <GlobalHeader mode={mode} />
       <div className="attach-evidence">
         <div className="container">
           <header className="page-header">
@@ -166,14 +227,21 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
           </header>
 
           {error && (
-            <div className="error-message">
+            <div className="error-message" role="alert">
               <p>{error}</p>
             </div>
           )}
 
           {!networkState?.isMonad && (
-            <div className="error-message">
-              ⚠️ Switch MetaMask to Monad Testnet before continuing.
+            <div className="network-notice" role="status">
+              <div className="network-notice-header">
+                <span className="network-notice-icon" aria-hidden="true">◉</span>
+                <span className="network-notice-title">Network Mismatch</span>
+              </div>
+              <p className="network-notice-text">
+                This record is anchored on Monad Testnet.<br />
+                Switch networks before attaching evidence.
+              </p>
               {networkState?.switchNetwork && (
                 <button
                   onClick={networkState.switchNetwork}
@@ -187,50 +255,82 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
           )}
 
           <div className="evidence-layout">
-            <section className="declared-panel">
+            <section className="declared-panel" aria-labelledby="declared-heading">
               <div className="panel-tab">WHAT WAS STATED</div>
               <div className="stated-box">
-                <h3>{declaration.project.title}</h3>
-                <p className="stated-promise">{declaration.project.promise}</p>
+                <div className="document-code" aria-hidden="true">
+                  <span className="doc-code-label">REC</span>
+                  <span className="doc-code-value">#{recordId}</span>
+                </div>
+
+                <div className="declaration-field">
+                  <label className="field-label" id="declared-heading">Declaration Title</label>
+                  <p className="field-value title-value">{declarationTitle}</p>
+                </div>
+
+                <div className="declaration-field">
+                  <label className="field-label">Declaration Text</label>
+                  <p className={`field-value text-value ${isEmptyOrMalformed(declaration.project?.promise) ? 'missing-value' : ''}`}>
+                    {declarationText}
+                  </p>
+                </div>
+
                 {declaration.deadline && (
-                  <div className="stated-deadline">
-                    <span className="stated-label">DUE</span>
-                    <span>{new Date(declaration.deadline).toLocaleDateString()}</span>
+                  <div className="declaration-field">
+                    <label className="field-label">Due</label>
+                    <p className="field-value mono-value">
+                      {new Date(declaration.deadline).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZoneName: 'short',
+                      })}
+                    </p>
                   </div>
                 )}
-                <div className="conditions">
-                  <p className="label">Conditions of completion</p>
-                  <ol>
+
+                <div className="declaration-field conditions-field">
+                  <label className="field-label">Conditions of Completion</label>
+                  <div className="conditions-list" role="list">
                     {declaration.conditions.map((c, i) => (
-                      <li key={c.id}>
-                        <span className="condition-index">{i + 1}.</span>
-                        {c.text}
-                      </li>
+                      <div key={c.id} className="condition-entry" role="listitem">
+                        <span className="condition-entry-label">Condition {String(i + 1).padStart(2, '0')}</span>
+                        <span className="condition-entry-text">
+                          {isEmptyOrMalformed(c.text) ? '—' : c.text}
+                        </span>
+                      </div>
                     ))}
-                  </ol>
+                  </div>
                 </div>
               </div>
-              <div className="stated-seal">🔒 LOCKED ON MONAD</div>
+
+              <div className="stated-seal" aria-hidden="true">
+                <span className="seal-lock">🔒</span>
+                <span>LOCKED ON MONAD</span>
+              </div>
             </section>
 
-            <form onSubmit={handleSubmit} className="evidence-form">
+            <form onSubmit={handleSubmit} className="evidence-form" aria-label="Attach evidence">
               <div className="form-header">
-                <div className="paper-clip">🖇</div>
-                <h2>EVIDENCE ITEMS</h2>
+                <div className="paper-clip" aria-hidden="true">🖇</div>
+                <h2>Evidence Items</h2>
                 <p className="form-hint">Each item can be linked to one or more conditions.</p>
               </div>
 
               <div className="evidence-items-stack">
                 {evidence.items.map((item, idx) => (
-                  <div key={idx} className="evidence-card">
-                    <div className="evidence-card-header">
-                      <span className="evidence-card-number">{idx + 1}</span>
+                  <div key={idx} className="evidence-slip">
+                    <div className="evidence-slip-header">
+                      <span className="evidence-slip-number">ITEM {String(idx + 1).padStart(2, '0')}</span>
                       {evidence.items.length > 1 && (
                         <button
                           type="button"
                           onClick={() => handleRemoveItem(idx)}
                           className="remove-button"
                           disabled={loading}
+                          aria-label={`Remove evidence item ${idx + 1}`}
                         >
                           Remove
                         </button>
@@ -238,8 +338,9 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
                     </div>
 
                     <div className="form-subgroup">
-                      <label>Label</label>
+                      <label htmlFor={`evidence-${idx}-label`}>Label</label>
                       <input
+                        id={`evidence-${idx}-label`}
                         type="text"
                         placeholder="e.g., GitHub repository"
                         value={item.label}
@@ -249,19 +350,24 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
                     </div>
 
                     <div className="form-subgroup">
-                      <label>URL / URI</label>
+                      <label htmlFor={`evidence-${idx}-uri`}>URL / URI</label>
                       <input
+                        id={`evidence-${idx}-uri`}
                         type="text"
                         placeholder="https://github.com/user/repo"
                         value={item.uri}
                         onChange={(e) => handleItemChange(idx, 'uri', e.target.value)}
                         disabled={loading}
+                        aria-describedby={`evidence-${idx}-uri-note`}
                       />
+                      <p id={`evidence-${idx}-uri-note`} className="input-note">
+                        Records what you chose to present. Does not verify authenticity.
+                      </p>
                     </div>
 
                     <div className="form-subgroup">
-                      <label>Link to Conditions</label>
-                      <div className="condition-checkboxes">
+                      <span className="fieldset-label">Link to Conditions</span>
+                      <div className="condition-checkboxes" role="group" aria-label="Linked conditions">
                         {declaration.conditions.map((condition) => (
                           <label key={condition.id} className="checkbox-label">
                             <input
@@ -270,10 +376,23 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
                               onChange={() => handleConditionToggle(idx, condition.id)}
                               disabled={loading}
                             />
-                            <span>{condition.text}</span>
+                            <span className="checkbox-check" aria-hidden="true"></span>
+                            <span className="checkbox-text">
+                              <span className="checkbox-condition-label">
+                                Condition {String(declaration.conditions.findIndex((c) => c.id === condition.id) + 1).padStart(2, '0')}
+                              </span>
+                              <span className="checkbox-condition-text">
+                                {isEmptyOrMalformed(condition.text) ? '—' : condition.text}
+                              </span>
+                            </span>
                           </label>
                         ))}
                       </div>
+                      {item.conditionIds.length === 0 && (
+                        <p className="conditions-unlinked" role="status">
+                          No condition selected — this item will not map to the declaration.
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -288,30 +407,46 @@ export default function AttachEvidence({ declaration: propDeclaration, recordId,
                 + Add Evidence Item
               </button>
 
-              <div className="warning-stamp">
-                <p className="warning-title">EVIDENCE ATTACHES ONCE</p>
-                <p className="warning-text">Once attached, your evidence cannot be changed. The hash will be recorded permanently.</p>
+              <div className="warning-notice" role="note">
+                <p className="warning-title">Attaching evidence does not mark a condition as fulfilled.</p>
+                <p className="warning-text">
+                  It only records what you chose to present.<br />
+                  Once attached, the evidence manifest cannot be replaced.<br />
+                  Its hash is recorded permanently.
+                </p>
               </div>
+
+              {unmetRequirements.length > 0 && (
+                <div className="requirements-panel" role="status">
+                  <p className="requirements-title">To attach this evidence pack:</p>
+                  <ul className="requirements-list">
+                    {unmetRequirements.map((req, idx) => (
+                      <li key={idx}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <button
                 type="submit"
-                className="submit-button tactile-press"
-                disabled={loading || evidence.items.filter((e) => e.label && e.uri).length === 0 || !networkState?.isMonad}
+                className={`submit-button tactile-press ${!isReadyToAttach ? 'submit-disabled' : ''}`}
+                disabled={!isReadyToAttach}
+                aria-live="polite"
               >
-                {loading ? 'ATTACHING EVIDENCE...' : 'ATTACH EVIDENCE TO RECORD'}
+                {loading ? txState : txState === TX_STATES.READY_TO_ATTACH ? 'Attach This Evidence Pack' : txState}
               </button>
             </form>
           </div>
 
           {success && (
-            <div className="success-message attach-success">
+            <div className="success-message attach-success" role="status">
               ✓ Evidence attached! Generating receipt...
             </div>
           )}
 
           <nav className="nav-buttons">
-            <button onClick={() => onNavigate('create', null)} className="back-button">
-              ← Back to Create Record
+            <button onClick={() => onNavigate('receipt', recordId)} className="back-button">
+              ← View Public Record
             </button>
           </nav>
         </div>

@@ -246,6 +246,34 @@
   display: inline-block;
 }
 
+.gap-signature {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-6);
+  background-color: var(--unresolved-bg);
+  border: 2px solid var(--unresolved-accent);
+}
+
+.gap-signature-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-size-lg);
+  font-weight: 700;
+  color: var(--unresolved-accent);
+  letter-spacing: 2px;
+}
+
+.gap-signature-count {
+  font-family: var(--font-mono);
+  font-size: var(--text-size-xs);
+  font-weight: 700;
+  color: var(--unresolved-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 @media (max-width: 768px) {
   .condition-evidence-map {
     padding: var(--space-6) var(--space-4);

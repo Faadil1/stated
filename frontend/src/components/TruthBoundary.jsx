@@ -38,8 +38,10 @@ export default function TruthBoundary() {
       <div className="boundary-seal">
         <p className="seal-title">THE GAP EXISTS</p>
         <p className="seal-text">
-          STATED records what was declared and what was shown.
-          It does not decide whether you kept your promise.
+          STATED proves chronology and integrity, not completion, quality, authenticity, or truth.
+        </p>
+        <p className="seal-subtext">
+          STATED doesn't decide whether you kept your promise.
           It makes it impossible to hide what you promised and what you actually showed.
         </p>
       </div>

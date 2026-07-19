@@ -18,6 +18,14 @@ export default function App() {
   const [routeErrorMessage, setRouteErrorMessage] = useState(routeError);
   const networkState = useNetwork();
 
+  const PAGE_MODES = {
+    landing: 'PUBLIC RECORD',
+    create: 'DECLARE INTENT',
+    attach: 'ATTACH EVIDENCE',
+    receipt: 'PUBLIC RECEIPT',
+  };
+  const headerMode = PAGE_MODES[currentPage] || 'PUBLIC RECORD';
+
   const handleNavigate = (page, recordId = null) => {
     setCurrentPage(page);
     if (recordId !== null) {
@@ -42,6 +50,7 @@ export default function App() {
           onNavigate={handleNavigate}
           setWalletAddress={setWalletAddress}
           networkState={networkState}
+          mode={headerMode}
         />
       )}
       {currentPage === 'create' && (
@@ -50,6 +59,7 @@ export default function App() {
           onNavigate={handleNavigate}
           onRecordCreated={handleRecordCreated}
           networkState={networkState}
+          mode={headerMode}
         />
       )}
       {currentPage === 'attach' && (
@@ -59,6 +69,7 @@ export default function App() {
           onNavigate={handleNavigate}
           onEvidenceAttached={handleEvidenceAttached}
           networkState={networkState}
+          mode={headerMode}
         />
       )}
       {currentPage === 'receipt' && (
@@ -68,6 +79,7 @@ export default function App() {
           evidenceManifest={evidenceData?.evidence}
           onNavigate={handleNavigate}
           networkState={networkState}
+          mode={headerMode}
         />
       )}
       {(currentPage === 'invalid-receipt' || currentPage === 'invalid-attach' || currentPage === 'not-found') && (

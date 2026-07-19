@@ -46,13 +46,16 @@ export default function DeclarationDocument({ declaration, sealed = false, statu
             {declaration.conditions && declaration.conditions.length > 0 && (
               <div className="declaration-field conditions-group">
                 <label className="field-label">CONDITIONS OF COMPLETION</label>
-                <ol className="conditions-list">
-                  {declaration.conditions.map((condition) => (
-                    <li key={condition.id} className="condition-item">
-                      <span className="condition-text">{condition.text}</span>
-                    </li>
+                <div className="conditions-list" role="list">
+                  {declaration.conditions.map((condition, index) => (
+                    <div key={condition.id} className="condition-item" role="listitem">
+                      <span className="condition-item-label">Condition {String(index + 1).padStart(2, '0')}</span>
+                      <span className="condition-text">
+                        {condition.text && String(condition.text).trim() ? condition.text : '—'}
+                      </span>
+                    </div>
                   ))}
-                </ol>
+                </div>
               </div>
             )}
           </div>

@@ -11,7 +11,7 @@ import '../styles/PublicReceipt.css';
 
 const IPFS_GATEWAY = 'https://ipfs.io';
 
-export default function PublicReceipt({ recordId, declaration, evidenceManifest, onNavigate }) {
+export default function PublicReceipt({ recordId, declaration, evidenceManifest, onNavigate, mode }) {
   const [record, setRecord] = useState(null);
   const [fetchedDeclaration, setFetchedDeclaration] = useState(null);
   const [fetchedEvidence, setFetchedEvidence] = useState(null);
@@ -115,7 +115,7 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
   if (loading) {
     return (
       <>
-        <GlobalHeader />
+        <GlobalHeader mode={mode} />
         <div className="receipt-loading">
           <div className="loading-paper">
             <p>Opening case file...</p>
@@ -128,7 +128,7 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
   if (error || !record || !fetchedDeclaration) {
     return (
       <>
-        <GlobalHeader />
+        <GlobalHeader mode={mode} />
         <div className="receipt-error">
           <div className="error-paper">
             <p className="error-text">
@@ -167,7 +167,7 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
 
   return (
     <>
-      <GlobalHeader />
+      <GlobalHeader mode={mode} />
       <CaseFileShell>
         <div className="case-file-header">
           <div className="case-file-title-group">
@@ -185,11 +185,14 @@ export default function PublicReceipt({ recordId, declaration, evidenceManifest,
           </div>
         </div>
 
-        <div className="case-file-tabs">
-          <div className="case-tab active">WHAT WAS STATED</div>
-          <div className="case-tab active">WHAT WAS SHOWN</div>
-          <div className="case-tab">WHAT THIS PROVES</div>
-          <div className="case-tab">WHAT THIS DOES NOT PROVE</div>
+        <div className="case-file-tabs" role="tablist" aria-label="Case file sections">
+          <div className="case-tab active" role="tab" aria-selected="true">WHAT WAS STATED</div>
+          <div className="case-tab active" role="tab" aria-selected="true">WHAT WAS SHOWN</div>
+          <div className={`case-tab ${unaccountedConditions.length > 0 ? 'gap-tab' : ''}`} role="tab" aria-selected="false">
+            UNACCOUNTED CONDITIONS {unaccountedConditions.length > 0 && `(${unaccountedConditions.length})`}
+          </div>
+          <div className="case-tab" role="tab" aria-selected="false">WHAT THIS ESTABLISHES</div>
+          <div className="case-tab" role="tab" aria-selected="false">WHAT THIS CANNOT ESTABLISH</div>
         </div>
 
         <DeclarationDocument
