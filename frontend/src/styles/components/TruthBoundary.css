@@ -117,19 +117,30 @@
 }
 
 .boundary-seal {
-  padding: var(--space-6);
-  background-color: var(--paper-base);
-  border: 2px solid var(--seal-rust);
+  padding: var(--space-8);
+  background-color: var(--paper-cream);
+  border: 3px solid var(--seal-rust);
   text-align: center;
+  position: relative;
+  box-shadow: var(--shadow-paper);
+}
+
+.boundary-seal::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(156, 75, 40, 0.25);
+  pointer-events: none;
 }
 
 .seal-title {
-  font-family: var(--font-mono);
-  font-size: var(--text-size-xl);
+  font-family: var(--font-serif);
+  font-size: var(--text-size-2xl);
   font-weight: 700;
   color: var(--seal-rust);
-  margin: 0 0 var(--space-2) 0;
-  letter-spacing: 2px;
+  margin: 0 0 var(--space-3) 0;
+  letter-spacing: 3px;
+  font-style: italic;
 }
 
 .seal-text {
@@ -151,6 +162,20 @@
   letter-spacing: 0.3px;
 }
 
+.registry-seal-visual {
+  margin-top: var(--space-5);
+  display: flex;
+  justify-content: center;
+}
+
+.registry-seal-svg {
+  width: 100px;
+  height: 100px;
+  color: var(--seal-rust);
+  opacity: 0.75;
+  transform: rotate(-8deg);
+}
+
 @media (max-width: 768px) {
   .truth-boundary {
     padding: var(--space-6) var(--space-4);
@@ -168,6 +193,11 @@
   }
 
   .seal-title {
-    font-size: var(--text-size-lg);
+    font-size: var(--text-size-xl);
+  }
+
+  .registry-seal-svg {
+    width: 80px;
+    height: 80px;
   }
 }

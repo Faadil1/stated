@@ -34,3 +34,8 @@ lerna-debug.log*
 # npm
 .npm/
 package-lock.json
+
+# Visual references & Screenshots
+frontend/src/assets/references/
+frontend/screenshots/
+frontend/scripts/

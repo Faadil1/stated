@@ -27,6 +27,17 @@ body {
   background-color: var(--surface-examination);
 }
 
+/* Warm paper texture applied to page shells */
+.paper-shell {
+  min-height: 100vh;
+  background-color: var(--surface-examination);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(160, 82, 45, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(74, 107, 90, 0.03) 0%, transparent 35%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: auto, auto, 220px 220px;
+}
+
 /* Global button styles */
 button {
   cursor: pointer;
@@ -37,7 +48,7 @@ button {
   color: var(--ink-primary);
   transition: all var(--motion-normal) var(--motion-ease);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   font-size: var(--text-size-xs);
   font-weight: 700;
 }
@@ -55,6 +66,88 @@ button:active {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Button variants */
+.btn-primary {
+  background-color: var(--seal-rust);
+  border: 2px solid var(--seal-rust);
+  color: var(--paper-cream);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--seal-rust-light);
+  border-color: var(--seal-rust-light);
+  color: var(--paper-cream);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: var(--border-paper-heavy);
+  color: var(--ink-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--ink-primary);
+  border-color: var(--ink-primary);
+  color: var(--paper-cream);
+}
+
+.btn-danger {
+  background-color: var(--unresolved-accent);
+  border: 2px solid var(--unresolved-accent);
+  color: var(--paper-cream);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--unresolved-muted);
+  border-color: var(--unresolved-muted);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--ink-secondary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: rgba(31, 28, 25, 0.06);
+  border-color: transparent;
+  color: var(--ink-primary);
+}
+
+/* Section label pill */
+.section-label-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--paper-cream);
+  background-color: var(--seal-rust);
+  padding: var(--space-2) var(--space-4);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 rgba(31, 28, 25, 0.12);
+}
+
+/* Warning banner */
+.warning-banner {
+  padding: var(--space-4) var(--space-5);
+  background-color: rgba(160, 82, 45, 0.1);
+  border: 1px solid rgba(160, 82, 45, 0.35);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-serif);
+  font-size: var(--text-size-sm);
+  color: var(--seal-rust-muted);
+}
+
+.warning-banner .warning-icon {
+  flex-shrink: 0;
+  color: var(--seal-rust);
+  font-size: 18px;
 }
 
 /* Global error / success messaging */
@@ -124,6 +217,100 @@ a:hover {
 
 .error-container .error-message {
   margin-bottom: var(--space-6);
+}
+
+/* Horizontal stepper */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-10);
+  flex-wrap: wrap;
+}
+
+.stepper-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.stepper-step .step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-muted);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+}
+
+.stepper-step.active {
+  color: var(--seal-rust);
+}
+
+.stepper-step.active .step-number {
+  background-color: var(--seal-rust);
+  border-color: var(--seal-rust);
+  color: var(--paper-cream);
+}
+
+.stepper-step.completed .step-number {
+  border-color: var(--seal-rust);
+  color: var(--seal-rust);
+}
+
+.stepper-connector {
+  width: 32px;
+  height: 2px;
+  background-color: rgba(31, 28, 25, 0.2);
+}
+
+@media (max-width: 640px) {
+  .stepper-connector {
+    width: 16px;
+  }
+
+  .stepper-step {
+    font-size: 9px;
+  }
+}
+
+/* Registry / seal stamp */
+.registry-stamp {
+  width: 110px;
+  height: 110px;
+  border: 3px solid var(--seal-rust);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--seal-rust);
+  transform: rotate(-12deg);
+  opacity: 0.9;
+  font-family: var(--font-mono);
+  text-align: center;
+  padding: var(--space-2);
+}
+
+.registry-stamp .stamp-main {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  line-height: 1.2;
+}
+
+.registry-stamp .stamp-sub {
+  font-size: 9px;
+  letter-spacing: 0.4px;
+  opacity: 0.9;
 }
 
 /* Micro-interactions */

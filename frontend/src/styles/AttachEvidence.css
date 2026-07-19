@@ -4,6 +4,11 @@
   min-height: 100vh;
   background-color: var(--surface-examination);
   padding: var(--space-8);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(160, 82, 45, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(74, 107, 90, 0.03) 0%, transparent 35%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: auto, auto, 220px 220px;
 }
 
 .container {
@@ -29,7 +34,7 @@
   font-family: var(--font-serif);
   font-size: var(--text-size-3xl);
   font-weight: 600;
-  color: var(--paper-base);
+  color: var(--ink-primary);
   margin: 0;
   line-height: var(--text-line-height-tight);
 }
@@ -95,7 +100,7 @@
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
-  color: var(--paper-base);
+  color: var(--paper-cream);
   background-color: var(--seal-rust);
   padding: var(--space-2) var(--space-4);
   letter-spacing: 1px;
@@ -107,7 +112,7 @@
 }
 
 .stated-box {
-  padding: var(--space-5);
+  padding: var(--space-8) var(--space-5) var(--space-5) var(--space-5);
   background-color: var(--paper-secondary);
   border: var(--border-paper-light);
   display: flex;
